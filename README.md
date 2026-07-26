@@ -1,37 +1,49 @@
 # TECH-REP
 
-Digital field operations for radio networks: **site verification**, **optimization actions**, and an ops dashboard.
+Industry-oriented **field app + web portal** for radio site verification, structured data collection, and optimization actions — designed **offline-first**.
 
-## What’s in this repo
+## Docs
 
-| Path | Purpose |
-|------|---------|
-| [`docs/PRODUCT_BLUEPRINT.md`](docs/PRODUCT_BLUEPRINT.md) | Product vision, modules, data model, APIs, roadmap |
-| `src/` | MVP web app (React + Vite + TypeScript) |
+- [`docs/PRODUCT_BLUEPRINT.md`](docs/PRODUCT_BLUEPRINT.md) — architecture, capture slots, sync model, API target, industry recommendations
 
-## MVP capabilities
+## What you can do in the MVP
 
-- Site inventory with planned vs actual sector parameters
-- Start / continue verification visits with categorized checklists
-- Evidence stubs: GPS, photo, notes
-- Complete visits with validation (required items, RF photo rule)
-- Propose and transition optimization actions (catalog types)
-- Dashboard metrics + demo data in `localStorage` (Reset demo in the header)
+### Field app
+- Run a **site verification checklist** (safety, civil, RF, power, transmission, data collection)
+- Collect structured evidence:
+  - Site overview, tower height photo, antenna height photo
+  - Per-sector mechanical / electrical tilt photos
+  - Panoramas at **0° / 60° / 120° / 180° / 240° / 300°**
+  - Numeric tower & antenna heights + sector actuals
+- Log **optimization actions** (electrical / mechanical tilt changes, etc.)
+- Work **offline** (PWA shell + IndexedDB); queue and **Sync to portal**
 
-## Run locally
+### Web portal
+- Browse visit dossiers after sync
+- Review checklist results, media gallery by slot, linked actions
+
+## Run
 
 ```bash
 npm install
 npm run dev
 ```
 
-Build:
+Production build (includes service worker):
 
 ```bash
 npm run build
 npm run preview
 ```
 
-## Design note
+Installable as a PWA from the browser when served over HTTPS / localhost.
 
-Landing and console use a field-ops visual language (Syne + IBM Plex Sans, atmospheric wash, signal teal / copper accents). Demo data is seeded for Indonesia-style regions for narrative concreteness only.
+## Suggested next production steps
+
+1. Real API + object storage for media  
+2. Auth / RBAC (field vs RF vs manager)  
+3. Capacitor wrapper for Play Store / MDM  
+4. Compass-assisted panorama validation  
+5. PDF acceptance pack export  
+
+See blueprint §10 for the full recommendation list.

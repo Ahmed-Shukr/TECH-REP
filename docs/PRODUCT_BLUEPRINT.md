@@ -1,144 +1,224 @@
 # TECH-REP Product Blueprint
 
-Digital platform for radio network field operations: site verification, optimization actions, and closed-loop evidence.
+Industry-grade digital platform for radio network **site verification**, **structured field data collection**, and **optimization actions** — with a **mobile field app** linked to a **web portal**, designed **offline-first**.
 
-## 1. Vision
+---
 
-Replace paper checklists, scattered photos, and tribal optimization knowledge with a single **site-centric** workflow: plan → visit → verify → act → prove.
+## 1. What we are building
 
-**Primary users**
+| Surface | Who | Purpose |
+|---------|-----|---------|
+| **Field app** (PWA now → native wrapper later) | Tech reps / contractors on site | Checklists, photo/data capture, log optimization actions — works without network |
+| **Web portal** | RF, optimization, ops managers | Site master, visit dossiers, approvals, reporting, audit |
+| **Sync backbone** | System | Queues field work offline; uploads media + forms when connectivity returns |
 
-| Role | Job |
-|------|-----|
-| Tech Rep / Field Engineer | Run site verification, capture evidence, execute approved actions |
-| RF / Optimization Engineer | Review exceptions, propose/approve optimization actions |
-| Region / Ops Manager | Track SLA, first-time-right, open sites, KPI outcomes |
-| Contractor Supervisor | Assign visits, ensure mandatory evidence before close |
+**Core loop:** assign visit → capture on site (offline OK) → sync to portal → RF review / accept → optimization actions with before/after evidence → KPI post-check.
 
-## 2. Product modules
+---
 
-### M1 — Site Master
-Single inventory of sites, cells/sectors, planned RF parameters, and asset tags.
+## 2. Field app — Site verification
 
-- Site ID, name, region, technology (2G/3G/4G/5G), status
-- Sectors: azimuth (planned), tilt (planned), height, PCI/PSC, power
-- Links to design docs and previous visits
+### 2.1 Checklist (required tasks)
 
-### M2 — Site Verification (field)
-Mobile-first visit workflow with offline support (MVP: online + mock GPS).
+Configurable per operator / technology. Default categories:
 
-- Standardized checklists: Civil, RF, Power, Transmission, Safety
-- As-planned vs as-built capture (azimuth, tilt, GPS, photos)
-- Pass / fail / exception with mandatory evidence rules
-- Auto-generated visit report & acceptance packet
+| Category | Example required tasks |
+|----------|------------------------|
+| Safety | PPE, RF exclusion, climb permit |
+| Civil | Access, fence, foundation, ladder/cage |
+| Tower / structure | Visual structural OK, marking, grounding |
+| RF / antenna | Azimuth, mechanical tilt, electrical tilt, antenna model, feeder/jumper |
+| Power | Rectifier, battery, genset, AC |
+| Transmission | MW/fiber status, alarms clear |
+| Data collection | All mandatory photo slots complete (see below) |
 
-### M3 — Optimization Actions
-Catalog-driven RF actions tied to KPIs and sites.
+Each item: **Pending / Pass / Fail / N/A**, measured value, notes, linked evidence IDs.  
+Visit cannot close while required items are Pending. Required Fail → visit status **Blocked** (exception to portal).
 
-- Action types: electrical/mechanical tilt, power, neighbor add/remove, PCI fix, capacity note
-- Lifecycle: Proposed → Approved → In progress → Verified → Closed (or Rolled back)
-- Expected impact + mandatory post-check window
-- Evidence and before/after KPI notes
+### 2.2 Structured data collection (media & measurements)
 
-### M4 — Operations Dashboard
-Region view of verification progress, open exceptions, and optimization hit rate.
+Not free-form photo dumping — **named capture slots** with rules.
 
-### M5 — Integrations (post-MVP)
-- OSS/NMS (CM/PM/FM)
-- Planning / design export
-- Ticketing (ServiceNow, Jira)
-- SON / parameter push APIs
-- Identity (SSO), contractor portals
+| Slot code | Description | Required |
+|-----------|-------------|----------|
+| `SITE_OVERVIEW` | Site / compound overview | Yes |
+| `TOWER_HEIGHT` | Tower / pole height reference photo | Yes |
+| `ANTENNA_HEIGHT` | Antenna mounting height photo | Yes |
+| `TILT_MECH_{sector}` | Mechanical tilt / bracket photo per sector | Yes per sector |
+| `TILT_ELEC_{sector}` | Electrical tilt indicator / RET screenshot if available | Optional / policy |
+| `PANORAMA_0` | Horizon panorama bearing **0°** | Yes |
+| `PANORAMA_60` | Horizon panorama bearing **60°** | Yes |
+| `PANORAMA_120` | Horizon panorama bearing **120°** | Yes |
+| `PANORAMA_180` | Horizon panorama bearing **180°** *(recommended; include in template)* | Yes |
+| `PANORAMA_240` | Horizon panorama bearing **240°** | Yes |
+| `PANORAMA_300` | Horizon panorama bearing **300°** | Yes |
+| `SHELTER` / `CABINET` | Indoor / outdoor cabinet | Policy |
+| `GROUNDING` | Earthing bond photo | Policy |
 
-## 3. Data model (core)
+**Each capture should store (when device allows):**
+
+- JPEG/WebP blob (compressed on device)
+- Timestamp (device + optional server time on sync)
+- GPS lat/lng + accuracy
+- Compass bearing (for panoramas — warn if off slot bearing by >15°)
+- Device id / user id
+- Optional EXIF strip policy for privacy vs keep GPS for audit
+
+**Measurements on the same visit:**
+
+- Tower height (m), antenna height (m) — numeric + photo proof
+- Per sector: azimuth actual, mechanical tilt actual, electrical tilt actual
+- Thresholds vs design (e.g. azimuth Δ > 5°, tilt Δ > 1°) → auto exception
+
+### 2.3 Optimization actions (from the field or portal)
+
+Log actions tied to **site + sector**:
+
+| Type | Example |
+|------|---------|
+| `TILT_E` | Change electrical tilt 4° → 6° on sector A |
+| `TILT_M` | Change mechanical tilt / adjust bracket |
+| `PWR` | Power adjust |
+| `NBR` | Neighbor add/remove |
+| `PCI` | PCI / scrambling conflict fix |
+| `CAP` | Capacity recommendation |
+
+Lifecycle: **Proposed → Approved → In progress → Verified → Closed** (or Rejected / Rolled back).
+
+Field tech can record **executed** tilt changes during the visit with before/after photos and values; portal RF lead approves where policy requires.
+
+---
+
+## 3. Web portal — linked system of record
+
+Everything synced from the field becomes the **site dossier**:
+
+- Visit timeline and checklist results
+- Full media gallery by slot (panoramas, tilt, heights)
+- As-planned vs as-built RF table
+- Open / closed optimization actions
+- Exceptions and acceptance sign-off
+- Export PDF/ZIP for landlord / regulatory / vendor acceptance *(phase 2)*
+
+Roles: Field user, RF engineer, Opt lead, Region manager, Read-only auditor.
+
+---
+
+## 4. Offline-first architecture
 
 ```
-Site
-  id, code, name, region, lat, lng, technology[], status
-  sectors[]: Sector
-  visits[]: Visit
-  actions[]: OptimizationAction
-
-Sector
-  id, name, azimuthPlanned, tiltPlanned, azimuthActual?, tiltActual?
-  heightM, technology, pci?
-
-Visit
-  id, siteId, startedAt, completedAt?, status (draft|in_progress|completed|blocked)
-  checklist: ChecklistItem[]
-  evidence: Evidence[]
-  notes?
-
-ChecklistItem
-  id, category, label, required, status (pending|pass|fail|na)
-  measuredValue?, plannedValue?, evidenceIds[]
-
-Evidence
-  id, type (photo|gps|note|measurement), capturedAt
-  lat?, lng?, caption?, dataUrl? (MVP media)
-
-OptimizationAction
-  id, siteId, sectorId?, type, title, description
-  status (proposed|approved|in_progress|verified|closed|rejected)
-  priority, proposedBy, approvedBy?
-  expectedImpact, kpiBefore?, kpiAfter?
-  createdAt, updatedAt, completedAt?
+┌─────────────────────┐     sync queue      ┌─────────────────────┐
+│  Field app (PWA)    │ ──────────────────► │  API + object store │
+│  IndexedDB + cache  │ ◄────────────────── │  Web portal DB      │
+│  camera / GPS       │   site master pull  │  dashboards         │
+└─────────────────────┘                     └─────────────────────┘
 ```
 
-## 4. API surface (target)
+**Rules:**
+
+1. **Download** assigned sites + design parameters before leaving coverage (or last sync).
+2. **All writes** go to local DB first (checklist, media blobs, actions).
+3. **Sync queue** retries with backoff; media uploads multipart / resumable.
+4. **Conflict policy:** field evidence wins for as-built measurements; portal wins for design/planned values; action approval only on portal.
+5. **UI:** clear Online / Offline / Syncing / Pending uploads badge.
+6. **PWA** app shell cached via service worker; later wrap with Capacitor/Android for Play Store + background upload.
+
+**MVP in this repo:** same codebase serves Field + Portal UIs; IndexedDB persistence; service worker offline shell; sync queue that “publishes” visits to the portal dossier view (simulated server until real API exists).
+
+---
+
+## 5. Target tech stack (industry path)
+
+| Layer | Recommendation |
+|-------|----------------|
+| Field client | PWA (React) → Capacitor iOS/Android when store distribution needed |
+| Portal | Same React app or separate Next.js portal; RBAC |
+| API | REST or GraphQL + OpenAPI; idempotent sync endpoints |
+| Media | S3-compatible object storage; CDN for portal; virus scan |
+| DB | PostgreSQL (sites, visits, actions); Redis for jobs |
+| Auth | SSO (Entra/Okta) + field PIN/biometric optional |
+| Observability | OpenTelemetry, sync failure alerts, media backlog SLA |
+| MDM | Intune/Workspace ONE for contractor devices (optional) |
+
+---
+
+## 6. Data model (extended)
+
+```
+Site, Sector                    — master + planned RF
+Visit                           — one field session
+  checklist[]                   — required tasks
+  captures[]                    — typed slots with media refs
+  measurements                  — heights, sector actuals
+  syncStatus                    — local | pending | synced | error
+OptimizationAction              — linked site/sector/visit?
+MediaObject                     — blob key, hash, size, gps, bearing
+SyncOutbox                      — mutation id, payload, retries
+```
+
+See TypeScript types in `src/data/types.ts`.
+
+---
+
+## 7. API surface (production target)
 
 | Method | Path | Purpose |
 |--------|------|---------|
-| GET | `/api/sites` | List sites (filter region/status) |
-| GET | `/api/sites/:id` | Site detail + sectors |
-| POST | `/api/sites/:id/visits` | Start verification visit |
-| PATCH | `/api/visits/:id/items/:itemId` | Update checklist item |
-| POST | `/api/visits/:id/evidence` | Attach evidence |
-| POST | `/api/visits/:id/complete` | Complete visit (validate required) |
-| GET | `/api/actions` | List optimization actions |
-| POST | `/api/actions` | Propose action |
-| PATCH | `/api/actions/:id` | Transition status |
-| GET | `/api/dashboard` | Aggregated ops metrics |
+| POST | `/auth/token` | Login / refresh |
+| GET | `/sites?assignedTo=me` | Pull site master for offline |
+| POST | `/visits` | Create / upsert visit |
+| PUT | `/visits/:id/checklist` | Upsert checklist state |
+| POST | `/visits/:id/captures/:slot` | Initiate media upload (presigned URL) |
+| PUT | `/media/:id/complete` | Confirm upload + metadata |
+| POST | `/actions` | Propose / log optimization action |
+| PATCH | `/actions/:id` | Transition workflow |
+| GET | `/portal/sites/:id/dossier` | Aggregated visit + media + actions |
+| GET | `/sync/cursor` | Delta pull since last sync |
 
-**MVP persistence:** browser `localStorage` with seeded demo data (no backend).
+---
 
-## 5. Verification rules (MVP)
+## 8. Phased delivery
 
-- Required checklist items must be `pass` or `na` to complete (fails create an exception but visit can complete as `blocked` if required fails).
-- Azimuth/tilt: flag exception if \|actual − planned\| > threshold (azimuth 5°, tilt 1°).
-- At least one photo evidence for RF category when any RF item fails.
-- GPS stub recorded at visit start.
+| Phase | Scope |
+|-------|--------|
+| **MVP (this repo)** | Field verification UI with checklist + capture slots + camera; optimization actions; portal dossier; PWA offline shell; IndexedDB; mock sync |
+| **Phase 2** | Real API, object storage, auth/RBAC, PDF dossier, compass-assisted panoramas |
+| **Phase 3** | Capacitor apps, resumable uploads, MDM, OSS/KPI hooks, e-sign acceptance |
+| **Phase 4** | Closed-loop SON parameter push, automated post-check |
 
-## 6. Optimization action catalog
+---
 
-| Code | Type | Typical trigger |
-|------|------|-----------------|
-| TILT_E | Electrical tilt adjust | Overshoot / coverage hole |
-| TILT_M | Mechanical tilt adjust | Persistent overshoot |
-| PWR | Power adjust | Interference / dominance |
-| NBR | Neighbor relation | HO fail / missing neighbor |
-| PCI | PCI / scrambling conflict | Confusion / drops |
-| CAP | Capacity recommendation | PRB congestion |
+## 9. Success metrics
 
-## 7. Phased roadmap
+- % visits with **100% mandatory slots** on first sync
+- Median time site arrival → sync complete
+- First-time-right (no block on verification)
+- Optimization actions with before/after media + verified KPI
+- Sync failure rate / media backlog older than 24h
 
-1. **MVP (this repo)** — Web app: landing, dashboard, sites, verification UI, optimization workflow, local seed data
-2. **Field hardening** — PWA offline, real camera/GPS, role auth, PDF report export
-3. **Integrations** — OSS KPI ingest, design import, ticketing sync
-4. **Closed loop** — Approved parameter push, automatic post-check, rollback
+---
 
-## 8. Success metrics
+## 10. Industry recommendations (do these early)
 
-- First-time-right verification rate
-- Mean time visit → acceptance
-- % optimization actions with verified KPI lift
-- Open exceptions older than SLA
-- Evidence completeness per closed visit
+1. **Slot templates per operator** — don’t hardcode only one photo list; version templates (`templateId` + `version`).
+2. **Mandatory vs advisory slots** — enforce in app, not by training alone.
+3. **Compress on device** (e.g. 1920px edge, JPEG 0.7) before queueing — towers have poor uplink.
+4. **Checksum (SHA-256)** per media file for integrity and dedupe.
+5. **Immutable audit log** — who changed tilt, when, old→new value.
+6. **Safety first** — block “start climb” checklist until safety items pass (policy flag).
+7. **Contractor mode** — limited site list, watermark photos with site code + timestamp.
+8. **Design freeze** — planned azimuth/tilt come from planning system; field cannot edit planned.
+9. **Retention & privacy** — define media retention (e.g. 5–7 years), EXIF policy, residency.
+10. **UAT with real tech reps** — 3 sites, full offline day, measure sync pain before scaling.
+11. **Panorama discipline** — include **180°** in the standard set (0/60/120/180/240/300) even if legacy paper packs omitted it.
+12. **Dual confirmation for RF-impacting actions** — field executes, RF lead acknowledges on portal within SLA.
 
-## 9. Out of scope for MVP
+---
 
-- Real OSS connectivity
-- Native mobile apps
-- Multi-tenant SSO
-- Automated SON execution
-- Full GIS coverage layers
+## 11. Out of scope for current MVP code
+
+- Real cloud API / S3
+- Native store builds
+- SSO
+- Live OSS counters
+- Automatic compass gating (UI ready for bearing metadata)

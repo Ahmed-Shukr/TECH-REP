@@ -136,7 +136,16 @@ export function SiteDetailPage() {
                     >
                       {new Date(visit.startedAt).toLocaleString()}
                     </Link>
-                    <p className="muted">{visit.notes ?? `${visit.checklist.length} checklist items`}</p>
+                    <p className="muted">
+                      {visit.syncStatus}
+                      {visit.notes ? ` · ${visit.notes}` : ` · ${visit.captures.length} captures`}
+                      {visit.syncStatus === 'synced' ? (
+                        <>
+                          {' · '}
+                          <Link to={`/portal/visits/${visit.id}`}>portal dossier</Link>
+                        </>
+                      ) : null}
+                    </p>
                   </div>
                   <StatusBadge kind="visit" value={visit.status} />
                 </li>

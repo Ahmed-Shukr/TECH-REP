@@ -78,6 +78,14 @@ export function OptimizationDetailPage() {
               <dd>{action.approvedBy ?? '—'}</dd>
             </div>
             <div>
+              <dt>Value before → after</dt>
+              <dd>
+                {action.valueBefore || action.valueAfter
+                  ? `${action.valueBefore ?? '—'} → ${action.valueAfter ?? '—'}`
+                  : '—'}
+              </dd>
+            </div>
+            <div>
               <dt>Expected impact</dt>
               <dd>{action.expectedImpact}</dd>
             </div>

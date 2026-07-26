@@ -1,75 +1,5 @@
-import type { AppState, ChecklistItem, OptimizationAction, Site, Visit } from './types'
-
-function rfChecklist(siteCode: string): ChecklistItem[] {
-  return [
-    {
-      id: `${siteCode}-c1`,
-      category: 'civil',
-      label: 'Compound access & fencing secure',
-      required: true,
-      status: 'pending',
-      evidenceIds: [],
-    },
-    {
-      id: `${siteCode}-c2`,
-      category: 'civil',
-      label: 'Tower / pole structural visual OK',
-      required: true,
-      status: 'pending',
-      evidenceIds: [],
-    },
-    {
-      id: `${siteCode}-r1`,
-      category: 'rf',
-      label: 'Sector azimuth matches design',
-      required: true,
-      status: 'pending',
-      plannedValue: 'per sector',
-      evidenceIds: [],
-    },
-    {
-      id: `${siteCode}-r2`,
-      category: 'rf',
-      label: 'Mechanical / electrical tilt matches design',
-      required: true,
-      status: 'pending',
-      plannedValue: 'per sector',
-      evidenceIds: [],
-    },
-    {
-      id: `${siteCode}-r3`,
-      category: 'rf',
-      label: 'Antenna model & mount verified',
-      required: true,
-      status: 'pending',
-      evidenceIds: [],
-    },
-    {
-      id: `${siteCode}-p1`,
-      category: 'power',
-      label: 'Rectifier / battery status nominal',
-      required: true,
-      status: 'pending',
-      evidenceIds: [],
-    },
-    {
-      id: `${siteCode}-t1`,
-      category: 'transmission',
-      label: 'Backhaul link up / alarms clear',
-      required: true,
-      status: 'pending',
-      evidenceIds: [],
-    },
-    {
-      id: `${siteCode}-s1`,
-      category: 'safety',
-      label: 'PPE & RF exclusion zone observed',
-      required: true,
-      status: 'pending',
-      evidenceIds: [],
-    },
-  ]
-}
+import { buildCaptureSlots, buildChecklist } from './templates'
+import type { AppState, CaptureAsset, ChecklistItem, OptimizationAction, Site, Visit } from './types'
 
 export const seedSites: Site[] = [
   {
@@ -89,9 +19,14 @@ export const seedSites: Site[] = [
         technology: '4G',
         azimuthPlanned: 0,
         tiltPlanned: 4,
+        mechTiltPlanned: 4,
+        elecTiltPlanned: 2,
         azimuthActual: 2,
         tiltActual: 4,
+        mechTiltActual: 4,
+        elecTiltActual: 2,
         heightM: 42,
+        antennaHeightM: 40,
         pci: 112,
       },
       {
@@ -100,7 +35,10 @@ export const seedSites: Site[] = [
         technology: '4G',
         azimuthPlanned: 120,
         tiltPlanned: 5,
+        mechTiltPlanned: 5,
+        elecTiltPlanned: 3,
         heightM: 42,
+        antennaHeightM: 40,
         pci: 118,
       },
       {
@@ -109,7 +47,10 @@ export const seedSites: Site[] = [
         technology: '5G',
         azimuthPlanned: 240,
         tiltPlanned: 3,
+        mechTiltPlanned: 3,
+        elecTiltPlanned: 1,
         heightM: 44,
+        antennaHeightM: 42,
         pci: 221,
       },
     ],
@@ -131,9 +72,14 @@ export const seedSites: Site[] = [
         technology: '4G',
         azimuthPlanned: 45,
         tiltPlanned: 2,
+        mechTiltPlanned: 2,
+        elecTiltPlanned: 1,
         azimuthActual: 58,
         tiltActual: 2,
+        mechTiltActual: 2,
+        elecTiltActual: 1,
         heightM: 35,
+        antennaHeightM: 33,
         pci: 64,
       },
       {
@@ -142,7 +88,10 @@ export const seedSites: Site[] = [
         technology: '4G',
         azimuthPlanned: 165,
         tiltPlanned: 3,
+        mechTiltPlanned: 3,
+        elecTiltPlanned: 2,
         heightM: 35,
+        antennaHeightM: 33,
         pci: 71,
       },
       {
@@ -151,7 +100,10 @@ export const seedSites: Site[] = [
         technology: '4G',
         azimuthPlanned: 285,
         tiltPlanned: 4,
+        mechTiltPlanned: 4,
+        elecTiltPlanned: 2,
         heightM: 35,
+        antennaHeightM: 33,
         pci: 79,
       },
     ],
@@ -173,7 +125,10 @@ export const seedSites: Site[] = [
         technology: '5G',
         azimuthPlanned: 10,
         tiltPlanned: 6,
+        mechTiltPlanned: 6,
+        elecTiltPlanned: 4,
         heightM: 48,
+        antennaHeightM: 46,
         pci: 301,
       },
       {
@@ -182,7 +137,10 @@ export const seedSites: Site[] = [
         technology: '5G',
         azimuthPlanned: 130,
         tiltPlanned: 6,
+        mechTiltPlanned: 6,
+        elecTiltPlanned: 4,
         heightM: 48,
+        antennaHeightM: 46,
         pci: 308,
       },
       {
@@ -191,7 +149,10 @@ export const seedSites: Site[] = [
         technology: '4G',
         azimuthPlanned: 250,
         tiltPlanned: 5,
+        mechTiltPlanned: 5,
+        elecTiltPlanned: 3,
         heightM: 46,
+        antennaHeightM: 44,
         pci: 144,
       },
     ],
@@ -213,9 +174,14 @@ export const seedSites: Site[] = [
         technology: '4G',
         azimuthPlanned: 30,
         tiltPlanned: 3,
+        mechTiltPlanned: 3,
+        elecTiltPlanned: 2,
         azimuthActual: 30,
         tiltActual: 7,
+        mechTiltActual: 7,
+        elecTiltActual: 2,
         heightM: 38,
+        antennaHeightM: 36,
         pci: 22,
       },
       {
@@ -224,7 +190,10 @@ export const seedSites: Site[] = [
         technology: '4G',
         azimuthPlanned: 150,
         tiltPlanned: 3,
+        mechTiltPlanned: 3,
+        elecTiltPlanned: 2,
         heightM: 38,
+        antennaHeightM: 36,
         pci: 28,
       },
       {
@@ -233,7 +202,10 @@ export const seedSites: Site[] = [
         technology: '4G',
         azimuthPlanned: 270,
         tiltPlanned: 4,
+        mechTiltPlanned: 4,
+        elecTiltPlanned: 2,
         heightM: 38,
+        antennaHeightM: 36,
         pci: 35,
       },
     ],
@@ -255,9 +227,14 @@ export const seedSites: Site[] = [
         technology: '4G',
         azimuthPlanned: 0,
         tiltPlanned: 5,
+        mechTiltPlanned: 5,
+        elecTiltPlanned: 3,
         azimuthActual: 0,
         tiltActual: 5,
+        mechTiltActual: 5,
+        elecTiltActual: 3,
         heightM: 28,
+        antennaHeightM: 26,
         pci: 90,
       },
       {
@@ -266,9 +243,14 @@ export const seedSites: Site[] = [
         technology: '5G',
         azimuthPlanned: 120,
         tiltPlanned: 4,
+        mechTiltPlanned: 4,
+        elecTiltPlanned: 2,
         azimuthActual: 118,
         tiltActual: 4,
+        mechTiltActual: 4,
+        elecTiltActual: 2,
         heightM: 30,
+        antennaHeightM: 28,
         pci: 201,
       },
       {
@@ -277,105 +259,114 @@ export const seedSites: Site[] = [
         technology: '4G',
         azimuthPlanned: 240,
         tiltPlanned: 5,
+        mechTiltPlanned: 5,
+        elecTiltPlanned: 3,
         azimuthActual: 241,
         tiltActual: 5,
+        mechTiltActual: 5,
+        elecTiltActual: 3,
         heightM: 28,
+        antennaHeightM: 26,
         pci: 97,
       },
     ],
   },
 ]
 
-const completedChecklist = (code: string): ChecklistItem[] =>
-  rfChecklist(code).map((item) => ({
-    ...item,
-    status: item.id.endsWith('r1') ? 'pass' : 'pass',
-    measuredValue: item.category === 'rf' ? 'within tolerance' : undefined,
-  }))
+function markPassed(items: ChecklistItem[]): ChecklistItem[] {
+  return items.map((item) => ({ ...item, status: 'pass' as const }))
+}
 
-export const seedVisits: Visit[] = [
-  {
+function placeholderCapture(slotId: string, note: string): CaptureAsset {
+  return {
+    id: `cap-${slotId}`,
+    slotId,
+    capturedAt: '2026-07-20T09:00:00.000Z',
+    note,
+    measuredValue: slotId.includes('HEIGHT') ? '28' : undefined,
+  }
+}
+
+function syncedVisitForSite5(): Visit {
+  const site = seedSites.find((s) => s.id === 'site-5')!
+  const slots = buildCaptureSlots(site.sectors)
+  const captures = slots
+    .filter((s) => s.required)
+    .map((s) => placeholderCapture(s.id, `Seed capture for ${s.label}`))
+  return {
     id: 'visit-1',
     siteId: 'site-5',
     startedAt: '2026-07-20T08:15:00.000Z',
     completedAt: '2026-07-20T10:40:00.000Z',
     status: 'completed',
-    checklist: completedChecklist('YGY-0099'),
-    evidence: [
-      {
-        id: 'ev-1',
-        type: 'gps',
-        capturedAt: '2026-07-20T08:15:00.000Z',
-        lat: -7.7926,
-        lng: 110.3659,
-        caption: 'Visit start fix',
-      },
-      {
-        id: 'ev-2',
-        type: 'photo',
-        capturedAt: '2026-07-20T09:05:00.000Z',
-        caption: 'Sector B antenna face',
-        preview: 'photo',
-      },
-    ],
-    notes: 'Acceptance ready — all sectors within design tolerance.',
-  },
-  {
+    syncStatus: 'synced',
+    syncedAt: '2026-07-20T11:00:00.000Z',
+    checklist: markPassed(buildChecklist('YGY-0099')),
+    slots,
+    captures,
+    measurements: { towerHeightM: 28, antennaHeightM: 26 },
+    notes: 'Acceptance ready — mandatory slots complete and synced.',
+  }
+}
+
+function openVisitForSite2(): Visit {
+  const site = seedSites.find((s) => s.id === 'site-2')!
+  const slots = buildCaptureSlots(site.sectors)
+  const checklist = buildChecklist('BDG-0188').map((item, idx) =>
+    idx < 3 ? { ...item, status: 'pass' as const } : item,
+  )
+  return {
     id: 'visit-2',
     siteId: 'site-2',
     startedAt: '2026-07-25T07:50:00.000Z',
     status: 'in_progress',
-    checklist: rfChecklist('BDG-0188').map((item, idx) =>
-      idx < 2 ? { ...item, status: 'pass' as const } : item,
-    ),
-    evidence: [
-      {
-        id: 'ev-3',
-        type: 'gps',
-        capturedAt: '2026-07-25T07:50:00.000Z',
-        lat: -6.873,
-        lng: 107.618,
-        caption: 'Visit start fix',
-      },
+    syncStatus: 'local',
+    checklist,
+    slots,
+    captures: [
+      placeholderCapture('SITE_OVERVIEW', 'Compound gate'),
+      placeholderCapture('PANORAMA_0', 'Panorama north'),
     ],
-  },
-  {
+    measurements: {},
+  }
+}
+
+function blockedVisitForSite4(): Visit {
+  const site = seedSites.find((s) => s.id === 'site-4')!
+  const slots = buildCaptureSlots(site.sectors)
+  const checklist = buildChecklist('MDN-0072').map((item) => {
+    if (item.label.includes('Mechanical tilt')) {
+      return {
+        ...item,
+        status: 'fail' as const,
+        measuredValue: 'mech tilt 7° vs planned 3°',
+        notes: 'Excessive downtilt on sector A',
+      }
+    }
+    return { ...item, status: 'pass' as const }
+  })
+  return {
     id: 'visit-3',
     siteId: 'site-4',
     startedAt: '2026-07-18T09:00:00.000Z',
     completedAt: '2026-07-18T11:20:00.000Z',
     status: 'blocked',
-    checklist: rfChecklist('MDN-0072').map((item) => {
-      if (item.id.endsWith('r2')) {
-        return {
-          ...item,
-          status: 'fail' as const,
-          measuredValue: 'tilt 7° vs planned 3°',
-          notes: 'Excessive downtilt on sector A',
-        }
-      }
-      if (item.category === 'safety' || item.category === 'civil') {
-        return { ...item, status: 'pass' as const }
-      }
-      return { ...item, status: 'pass' as const }
-    }),
-    evidence: [
-      {
-        id: 'ev-4',
-        type: 'measurement',
-        capturedAt: '2026-07-18T10:10:00.000Z',
-        caption: 'Sector A tilt reading 7°',
-      },
-      {
-        id: 'ev-5',
-        type: 'photo',
-        capturedAt: '2026-07-18T10:12:00.000Z',
-        caption: 'Tilt bracket photo',
-        preview: 'photo',
-      },
-    ],
-    notes: 'Blocked pending tilt correction action.',
-  },
+    syncStatus: 'synced',
+    syncedAt: '2026-07-18T12:00:00.000Z',
+    checklist,
+    slots,
+    captures: slots
+      .filter((s) => s.required)
+      .map((s) => placeholderCapture(s.id, `Blocked-visit capture ${s.label}`)),
+    measurements: { towerHeightM: 38, antennaHeightM: 36 },
+    notes: 'Blocked pending mechanical tilt correction.',
+  }
+}
+
+export const seedVisits: Visit[] = [
+  syncedVisitForSite5(),
+  openVisitForSite2(),
+  blockedVisitForSite4(),
 ]
 
 export const seedActions: OptimizationAction[] = [
@@ -383,35 +374,41 @@ export const seedActions: OptimizationAction[] = [
     id: 'act-1',
     siteId: 'site-2',
     sectorId: 's2a',
+    visitId: 'visit-2',
     type: 'TILT_M',
-    title: 'Correct sector A azimuth overshoot',
+    title: 'Correct sector A azimuth / mechanical alignment',
     description:
-      'As-built azimuth ~58° vs planned 45°. Reduce overshoot toward residential cluster and restore HO boundary with neighbor BDG-0170.',
+      'As-built azimuth ~58° vs planned 45°. Realign mechanical azimuth and verify bracket.',
     status: 'approved',
     priority: 'high',
     proposedBy: 'Sari W. (RF)',
     approvedBy: 'Andre K. (Opt Lead)',
-    expectedImpact: 'HO success +3pp, drop rate −0.4pp on sector A',
-    kpiBefore: 'HO fail 8.2%, drop 1.1%',
+    expectedImpact: 'HO success +3pp on sector A',
+    valueBefore: 'az 58°',
+    valueAfter: 'az 45° (target)',
+    kpiBefore: 'HO fail 8.2%',
     createdAt: '2026-07-24T04:00:00.000Z',
     updatedAt: '2026-07-25T02:00:00.000Z',
+    syncStatus: 'synced',
   },
   {
     id: 'act-2',
     siteId: 'site-4',
     sectorId: 's4a',
+    visitId: 'visit-3',
     type: 'TILT_E',
     title: 'Reduce sector A electrical tilt',
-    description:
-      'Verification found 7° vs planned 3°. Coverage hole on ring road; restore planned tilt after bracket check.',
+    description: 'Verification found mechanical 7° vs planned 3°. Correct and set RET to design.',
     status: 'in_progress',
     priority: 'high',
     proposedBy: 'Budi R. (Tech Rep)',
     approvedBy: 'Andre K. (Opt Lead)',
-    expectedImpact: 'RSRP edge +4 dB on primary road',
-    kpiBefore: 'Edge RSRP −112 dBm sample',
+    expectedImpact: 'Edge RSRP +4 dB on ring road',
+    valueBefore: 'mech 7° / elec 2°',
+    valueAfter: 'mech 3° / elec 2°',
     createdAt: '2026-07-18T12:00:00.000Z',
     updatedAt: '2026-07-26T01:30:00.000Z',
+    syncStatus: 'synced',
   },
   {
     id: 'act-3',
@@ -419,52 +416,50 @@ export const seedActions: OptimizationAction[] = [
     sectorId: 's1c',
     type: 'NBR',
     title: 'Add missing 5G neighbor relation',
-    description:
-      'IRAT / NR HO failures toward JKT-0460. Add bidirectional neighbor and verify X2/Xn.',
+    description: 'NR HO failures toward JKT-0460. Add bidirectional neighbor.',
     status: 'proposed',
     priority: 'medium',
     proposedBy: 'Lina P. (RF)',
-    expectedImpact: 'NR HO success +5pp in Menteng cluster',
-    kpiBefore: 'NR HO fail 12%',
+    expectedImpact: 'NR HO success +5pp',
     createdAt: '2026-07-26T03:00:00.000Z',
     updatedAt: '2026-07-26T03:00:00.000Z',
+    syncStatus: 'synced',
   },
   {
     id: 'act-4',
     siteId: 'site-5',
     sectorId: 's5b',
+    visitId: 'visit-1',
     type: 'PWR',
     title: 'Trim 5G power after festival load',
-    description:
-      'Temporary power boost left in place. Return to baseline to reduce inter-site interference.',
+    description: 'Return temporary power boost to baseline.',
     status: 'verified',
     priority: 'low',
     proposedBy: 'Andre K. (Opt Lead)',
     approvedBy: 'Andre K. (Opt Lead)',
-    expectedImpact: 'Interference noise −1.5 dB overnight',
+    expectedImpact: 'SINR +1 dB overnight',
     kpiBefore: 'Avg throughput 48 Mbps',
-    kpiAfter: 'Avg throughput 61 Mbps; SINR +1.2 dB',
+    kpiAfter: 'Avg throughput 61 Mbps',
     createdAt: '2026-07-12T06:00:00.000Z',
     updatedAt: '2026-07-16T08:00:00.000Z',
     completedAt: '2026-07-16T08:00:00.000Z',
+    syncStatus: 'synced',
   },
   {
     id: 'act-5',
     siteId: 'site-1',
     type: 'CAP',
     title: 'Flag PRB congestion for capacity add',
-    description:
-      'Busy-hour PRB >85% on 4G carriers. Recommend second carrier or small cell overlay.',
+    description: 'Busy-hour PRB >85%. Recommend second carrier.',
     status: 'closed',
     priority: 'medium',
     proposedBy: 'Sari W. (RF)',
     approvedBy: 'Region Capacity',
-    expectedImpact: 'Capacity ticket raised to planning',
-    kpiBefore: 'PRB 87% BH',
-    kpiAfter: 'Planning ticket CAP-4412 opened',
+    expectedImpact: 'Planning ticket opened',
     createdAt: '2026-06-30T05:00:00.000Z',
     updatedAt: '2026-07-10T09:00:00.000Z',
     completedAt: '2026-07-10T09:00:00.000Z',
+    syncStatus: 'synced',
   },
 ]
 
@@ -473,9 +468,7 @@ export function createSeedState(): AppState {
     sites: structuredClone(seedSites),
     visits: structuredClone(seedVisits),
     actions: structuredClone(seedActions),
+    syncQueue: [],
+    online: typeof navigator === 'undefined' ? true : navigator.onLine,
   }
-}
-
-export function newChecklistForSite(siteCode: string): ChecklistItem[] {
-  return rfChecklist(siteCode).map((item) => ({ ...item, id: `${item.id}-${Date.now()}` }))
 }

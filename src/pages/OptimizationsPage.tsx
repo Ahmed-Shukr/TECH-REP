@@ -20,6 +20,8 @@ export function OptimizationsPage() {
     priority: 'medium' as 'low' | 'medium' | 'high',
     expectedImpact: '',
     proposedBy: 'RF Engineer',
+    valueBefore: '',
+    valueAfter: '',
   })
 
   const filtered = useMemo(
@@ -40,6 +42,8 @@ export function OptimizationsPage() {
       priority: form.priority,
       proposedBy: form.proposedBy.trim() || 'RF Engineer',
       expectedImpact: form.expectedImpact.trim() || 'TBD post-check',
+      valueBefore: form.valueBefore.trim() || undefined,
+      valueAfter: form.valueAfter.trim() || undefined,
     })
     setShowForm(false)
     navigate(`/optimizations/${id}`)
@@ -148,6 +152,22 @@ export function OptimizationsPage() {
                 value={form.description}
                 onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
                 placeholder="Trigger, intended change, risk notes"
+              />
+            </label>
+            <label className="field">
+              <span>Value before</span>
+              <input
+                value={form.valueBefore}
+                onChange={(e) => setForm((f) => ({ ...f, valueBefore: e.target.value }))}
+                placeholder="e.g. elec tilt 4°"
+              />
+            </label>
+            <label className="field">
+              <span>Value after</span>
+              <input
+                value={form.valueAfter}
+                onChange={(e) => setForm((f) => ({ ...f, valueAfter: e.target.value }))}
+                placeholder="e.g. elec tilt 6°"
               />
             </label>
             <label className="field">
