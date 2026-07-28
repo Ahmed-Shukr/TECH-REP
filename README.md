@@ -6,7 +6,8 @@ Learning materials and technical experiments.
 
 Hands-on bootcamp: shell basics → real automation projects.
 
-Start here: [learning/bash-scripting/README.md](learning/bash-scripting/README.md)
+- Curriculum: [learning/bash-scripting/README.md](learning/bash-scripting/README.md)
+- Lecture decks (Cookie / Merit Advisory style, ~100 slides each): [learning/bash-scripting/presentations/](learning/bash-scripting/presentations/)
 
 ```bash
 cd learning/bash-scripting

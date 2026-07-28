@@ -2,13 +2,31 @@
 
 A hands-on bootcamp for learning Bash from first commands to real automation scripts.
 
+## Presentations (Merit Advisory · Cookie template)
+
+Detailed lecture decks — **80+ topics / ~100 slides each** — matching the Odoo bootcamp presentation style:
+
+→ [`presentations/`](presentations/)
+
+| Deck | Focus |
+|------|--------|
+| 01 Shell Basics | Terminal, navigation, PATH, first scripts |
+| 02 Variables & Quoting | Safe data handling |
+| 03 Control Flow | if, case, for, while |
+| 04 Functions | Reusable script structure |
+| 05 Files, Pipes & Redirection | Streams and pipelines |
+| 06 Text Processing | grep, sed, awk, sort |
+| 07 Errors & Debugging | Strict mode, traps, tracing |
+| 08 Projects | Sysinfo, backup, log scanner, CLI toolkit |
+
 ## How to use this
 
-1. Work through modules **in order** (`01` → `08`).
-2. Read each module’s `LESSON.md`.
-3. Run the companion scripts in `scripts/` and your own solutions.
-4. Complete the exercises before moving on.
-5. Capstone projects are in `08-projects/`.
+1. Open the matching PDF in [`presentations/`](presentations/) while you study.
+2. Work through modules **in order** (`01` → `08`).
+3. Read each module’s `LESSON.md`.
+4. Run the companion scripts in `scripts/` and your own solutions.
+5. Complete the exercises before moving on.
+6. Capstone projects are in `08-projects/`.
 
 ## Prerequisites
 
@@ -33,8 +51,8 @@ A hands-on bootcamp for learning Bash from first commands to real automation scr
 
 ```bash
 cd learning/bash-scripting
-bash scripts/hello.sh
 bash scripts/check-env.sh
+bash scripts/hello.sh
 ```
 
 Make a script executable when you want to run it directly:
