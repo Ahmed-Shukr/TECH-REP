@@ -1,0 +1,11 @@
+2026-07-28T08:01:11 INFO  service started
+2026-07-28T08:01:15 INFO  loaded config
+2026-07-28T08:02:03 WARN  retrying connection
+2026-07-28T08:02:04 ERROR connection refused
+2026-07-28T08:02:10 INFO  retry succeeded
+2026-07-28T08:05:22 WARN  high memory usage
+2026-07-28T08:06:01 ERROR disk write failed
+2026-07-28T08:06:02 ERROR disk write failed
+2026-07-28T08:07:44 INFO  request ok
+2026-07-28T08:08:10 WARN  slow query
+2026-07-28T08:09:55 INFO  shutting down
