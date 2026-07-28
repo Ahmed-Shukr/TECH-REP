@@ -18,6 +18,7 @@ from training_pdf.lib.slide_builder import (  # noqa: E402
     ML,
     MR,
     code_block,
+    pro_bullets,
     two_col,
 )
 from training_pdf.lib.styles import PAGE_W  # noqa: E402
@@ -238,7 +239,7 @@ def examples_to_code(examples: list[dict], max_lines: int = 16) -> str:
 
 
 def topic_slide(deck: Deck, section_no: int, topic_index: int, topic: dict):
-    """Dense Cookie slide: all teaching points + all examples, packed tightly."""
+    """Dense Cookie slide: professional disc bullets + packed examples."""
     number = f"{section_no}.{topic_index}"
     title = esc(topic["title"])
     points = [esc(p) for p in (topic.get("points") or [])]
@@ -247,36 +248,25 @@ def topic_slide(deck: Deck, section_no: int, topic_index: int, topic: dict):
 
     def builder(story, s):
         width = PAGE_W - ML - MR
-        bullet_flow = []
-        for point in points:
-            bullet_flow.append(
-                Paragraph(
-                    f"<font color='#356AE6' size='8'><b>•</b></font>&nbsp;&nbsp;{point}",
-                    s["bullet"],
-                )
-            )
-
         code = examples_to_code(examples, max_lines=14)
-        if not code:
-            for el in bullet_flow:
-                story.append(el)
-            return
 
-        # Combined topics (2 atomic ideas): two-column fills whitespace.
-        if source_count >= 2:
+        # Combined topics: two-column dense layout.
+        if source_count >= 2 and code:
+            col_w = (width - 8) / 2
+            left = pro_bullets(s, points, width=col_w - 2)
             right = [
                 Paragraph("Examples", s["example_label"]),
-                code_block(s, code, width=(width / 2) - 8),
+                code_block(s, code, width=col_w - 4),
             ]
-            story.append(two_col(bullet_flow, right, gap=8))
+            story.append(two_col(left, right, gap=8))
             return
 
-        # Single leftover topic: compact stacked layout (no sparse one-liner slides).
-        for el in bullet_flow:
-            story.append(el)
-        story.append(Spacer(1, 2))
-        story.append(Paragraph("Examples", s["example_label"]))
-        story.append(code_block(s, code, width=width - 4))
+        # Single leftover topic: stacked compact layout.
+        story.extend(pro_bullets(s, points, width=width - 2))
+        if code:
+            story.append(Spacer(1, 2))
+            story.append(Paragraph("Examples", s["example_label"]))
+            story.append(code_block(s, code, width=width - 4))
 
     deck.slide(number, title, builder)
 

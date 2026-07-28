@@ -233,16 +233,74 @@ def make_doc(path, series, title, total_slides=100, meta=None):
     return doc
 
 
-def bullets(s, items, style="bullet"):
-    """Professional disc bullets (Cookie-friendly)."""
+class BulletDisc(Flowable):
+    """Small filled circle used as a professional disc bullet."""
+
+    def __init__(self, diameter=3.0, color=None, pad_top=2.2):
+        Flowable.__init__(self)
+        self.diameter = diameter
+        self.color = color or BLUE
+        self.pad_top = pad_top
+        self.width = 7
+        self.height = diameter + pad_top + 1
+
+    def draw(self):
+        r = self.diameter / 2.0
+        self.canv.setFillColor(self.color)
+        # Align disc optically with the first text line.
+        self.canv.circle(2.8, self.height - self.pad_top - r, r, fill=1, stroke=0)
+
+
+def bullets(s, items, style="bullet", width=None):
+    """Professional disc bullets with hanging-indent wrap alignment."""
+    return pro_bullets(s, items, width=width or (PAGE_W - ML - MR), style=style)
+
+
+def pro_bullets(s, items, width=None, style="bullet"):
+    """
+    Table-based disc bullets:
+      • text wraps under the text column, never under the disc
+      • consistent left edge for every bullet
+    """
+    from reportlab.lib.styles import ParagraphStyle
+
+    avail = width or (PAGE_W - ML - MR)
+    disc_w = 8
+    text_w = max(40, avail - disc_w)
+    body_style = s.get("bullet_body") or s[style]
+    # Ensure wrapped lines stay in the text column (no first-line quirks).
+    if not hasattr(body_style, "_pro_bullet_ready"):
+        body_style = ParagraphStyle(
+            f"{body_style.name}-pro",
+            parent=body_style,
+            leftIndent=0,
+            firstLineIndent=0,
+            spaceBefore=0,
+            spaceAfter=0,
+            leading=max(getattr(body_style, "leading", 10.6), 10.8),
+        )
+        body_style._pro_bullet_ready = True
+
     out = []
     for item in items:
-        out.append(
-            Paragraph(
-                f"<font color='#356AE6' size='9'><b>•</b></font>&nbsp;&nbsp;{item}",
-                s[style],
+        row = Table(
+            [[BulletDisc(diameter=2.8, pad_top=2.6), Paragraph(str(item), body_style)]],
+            colWidths=[disc_w, text_w],
+        )
+        row.setStyle(
+            TableStyle(
+                [
+                    ("VALIGN", (0, 0), (0, 0), "TOP"),
+                    ("VALIGN", (1, 0), (1, 0), "TOP"),
+                    ("LEFTPADDING", (0, 0), (-1, -1), 0),
+                    ("RIGHTPADDING", (0, 0), (0, 0), 1),
+                    ("RIGHTPADDING", (1, 0), (1, 0), 0),
+                    ("TOPPADDING", (0, 0), (-1, -1), 0),
+                    ("BOTTOMPADDING", (0, 0), (-1, -1), 2.4),
+                ]
             )
         )
+        out.append(row)
     return out
 
 
