@@ -320,13 +320,13 @@ def professional_bullets(s, items: list[str], width=None):
     from training_pdf.lib.slide_builder import BulletDisc
 
     avail = width or (PAGE_W - ML - MR)
-    disc_w = 11
+    disc_w = 10
     text_w = max(48, avail - disc_w)
     body = ParagraphStyle(
         "bash_bullet_text",
         parent=s["bullet_body"],
-        fontSize=10.0,
-        leading=12.8,
+        fontSize=8.7,
+        leading=11.0,
         leftIndent=0,
         firstLineIndent=0,
         spaceBefore=0,
@@ -335,7 +335,7 @@ def professional_bullets(s, items: list[str], width=None):
     out = []
     for item in items:
         row = Table(
-            [[BulletDisc(diameter=3.0, pad_top=2.8), Paragraph(item, body)]],
+            [[BulletDisc(diameter=2.8, pad_top=2.6), Paragraph(item, body)]],
             colWidths=[disc_w, text_w],
         )
         row.setStyle(
@@ -346,7 +346,7 @@ def professional_bullets(s, items: list[str], width=None):
                     ("RIGHTPADDING", (0, 0), (0, 0), 2),
                     ("RIGHTPADDING", (1, 0), (1, 0), 0),
                     ("TOPPADDING", (0, 0), (-1, -1), 0),
-                    ("BOTTOMPADDING", (0, 0), (-1, -1), 3.0),
+                    ("BOTTOMPADDING", (0, 0), (-1, -1), 2.0),
                 ]
             )
         )
@@ -355,18 +355,30 @@ def professional_bullets(s, items: list[str], width=None):
 
 
 def topic_slide(deck: Deck, section_no: int, topic_index: int, topic: dict):
-    """Full-width slide: larger type, aligned discs, bold red definition terms."""
+    """Dense slide: aligned discs, readable type, bold red definition terms."""
     number = f"{section_no}.{topic_index}"
     title = esc(topic["title"])
     title_terms = terms_from_title(topic["title"])
     points = [colorize_point(p, title_terms) for p in (topic.get("points") or [])]
     examples = topic.get("examples") or []
+    source_count = int(topic.get("source_count") or 1)
 
     def builder(story, s):
         width = PAGE_W - ML - MR
-        # Full width reduces wrapping, so larger fonts still fit on one frame.
+        code = examples_to_code(examples, max_lines=9)
+
+        if source_count >= 2 and code:
+            col_w = (width - 8) / 2
+            left = professional_bullets(s, points, width=col_w - 2)
+            right = [
+                Paragraph("Examples", s["example_label"]),
+                Spacer(1, 1),
+                code_block(s, code, width=col_w - 4),
+            ]
+            story.append(two_col(left, right, gap=8))
+            return
+
         story.extend(professional_bullets(s, points, width=width - 2))
-        code = examples_to_code(examples, max_lines=8)
         if code:
             story.append(Spacer(1, 2))
             story.append(Paragraph("Examples", s["example_label"]))
