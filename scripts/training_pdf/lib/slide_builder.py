@@ -215,9 +215,39 @@ def make_doc(path, series, title, total_slides=100, meta=None):
     doc.total_slides = total_slides
     doc.cookie_meta = meta or {"left": "Merit Advisory", "mid": "Training", "right": series}
 
-    body = Frame(ML, MB, PAGE_W - ML - MR, PAGE_H - MT - MB, id="body")
-    full = Frame(14, MB, PAGE_W - 28, PAGE_H - MT - MB, id="full")
-    title_frame = Frame(14, 20, PAGE_W * 0.58, PAGE_H - 40, id="title")
+    body = Frame(
+        ML,
+        MB,
+        PAGE_W - ML - MR,
+        PAGE_H - MT - MB,
+        id="body",
+        leftPadding=0,
+        rightPadding=0,
+        topPadding=0,
+        bottomPadding=0,
+    )
+    full = Frame(
+        14,
+        MB,
+        PAGE_W - 28,
+        PAGE_H - MT - MB,
+        id="full",
+        leftPadding=0,
+        rightPadding=0,
+        topPadding=0,
+        bottomPadding=0,
+    )
+    title_frame = Frame(
+        14,
+        20,
+        PAGE_W * 0.58,
+        PAGE_H - 40,
+        id="title",
+        leftPadding=0,
+        rightPadding=0,
+        topPadding=0,
+        bottomPadding=0,
+    )
 
     def chrome(c, d):
         content_chrome(c, d, getattr(d, "cookie_meta", None))
