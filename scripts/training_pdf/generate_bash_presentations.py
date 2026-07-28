@@ -4,10 +4,12 @@
 from __future__ import annotations
 
 import os
+import re
 import sys
 from datetime import datetime
 
-from reportlab.platypus import Paragraph, Spacer
+from reportlab.lib.styles import ParagraphStyle
+from reportlab.platypus import KeepTogether, Paragraph, Spacer
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
@@ -18,7 +20,6 @@ from training_pdf.lib.slide_builder import (  # noqa: E402
     ML,
     MR,
     code_block,
-    pro_bullets,
     two_col,
 )
 from training_pdf.lib.styles import PAGE_W  # noqa: E402
@@ -35,8 +36,8 @@ OUT_DIR = os.path.join(
     WORKSPACE, "learning", "bash-scripting", "presentations"
 )
 
-# Merge this many atomic topics onto each content slide (keeps all content).
 MERGE_SIZE = 2
+TERM_COLOR = "#DC2626"  # red for defined terms
 
 DECKS = [
     {
@@ -125,7 +126,6 @@ def esc(text: str) -> str:
 
 
 def short_title(title: str) -> str:
-    """Prefer the concept name before a dash separator."""
     for sep in (" - ", " — ", " – "):
         if sep in title:
             return title.split(sep, 1)[0].strip()
@@ -149,34 +149,115 @@ def combine_titles(titles: list[str]) -> str:
     return combined
 
 
+def terms_from_title(title: str) -> list[str]:
+    """Collect highlightable terms from a slide title."""
+    terms = []
+    for part in re.split(r"\s*[·|/]\s*|\s+to\s+", title or ""):
+        part = short_title(part)
+        part = re.sub(
+            r"^(What Is|Using|Intro(?:duction)? to|The|A|An)\s+",
+            "",
+            part,
+            flags=re.I,
+        ).strip()
+        part = re.sub(r"^(a|an|the)\s+", "", part, flags=re.I).strip()
+        if not part:
+            continue
+        token = part.split()[0].strip("()[]{}.,:;\"'")
+        if len(token) >= 2 and token.lower() not in {"and", "for", "with", "from"}:
+            terms.append(token)
+        # Keep short multi-word concepts like "working directory"
+        words = part.split()
+        if 1 < len(words) <= 3:
+            terms.append(part)
+    uniq = []
+    seen = set()
+    for t in sorted(terms, key=len, reverse=True):
+        key = t.lower()
+        if key not in seen:
+            uniq.append(t)
+            seen.add(key)
+    return uniq
+
+
+def detect_definition_terms(text: str) -> list[str]:
+    """Pull the defined word from common definition sentence shapes."""
+    patterns = [
+        r"^(?:A|An|The)\s+([A-Za-z][\w./+-]*)\s+(?:is|are|means|stands)\b",
+        r"^([A-Za-z][\w./+-]*)\s+(?:is|are|means|stands for)\b",
+        r"^(?:The)\s+([A-Za-z][\w./+-]*)\s+command\b",
+        r"^([A-Za-z][\w./+-]*)\s+command\b",
+        r"^([A-Za-z][\w./+-]*)\s+option\b",
+        r"^([A-Za-z][\w./+-]*)\s+variable\b",
+    ]
+    found = []
+    for pat in patterns:
+        m = re.match(pat, text.strip(), flags=re.I)
+        if m:
+            found.append(m.group(1))
+    return found
+
+
+def highlight_terms(text: str, terms: list[str]) -> str:
+    """Bold + red the first occurrence of each definition term (no nested tags)."""
+    out = text
+    used = set()
+    for term in terms:
+        key = term.lower()
+        if key in used or len(term) < 2:
+            continue
+        pattern = re.compile(rf"(?<![\w/>])({re.escape(term)})(?![\w/<])", re.I)
+        match = pattern.search(out)
+        if not match:
+            continue
+        start = match.start()
+        before = out[:start]
+        # Skip if already inside a colored font span.
+        if before.rfind(f'<font color="{TERM_COLOR}">') > before.rfind("</font>"):
+            continue
+        replacement = (
+            f'<font color="{TERM_COLOR}" face="NotoSC-Bold"><b>{match.group(1)}</b></font>'
+        )
+        out = out[:start] + replacement + out[match.end() :]
+        used.add(key)
+    return out
+
+
+def colorize_point(point: str, title_terms: list[str]) -> str:
+    """Escape, then color-bold the defined term in the sentence."""
+    raw = point or ""
+    defined = detect_definition_terms(raw)
+    if defined:
+        terms = defined[:1]  # primary definition word only
+    else:
+        # Fallback: first title term that appears in this sentence.
+        terms = []
+        lower = raw.lower()
+        for t in title_terms:
+            if t.lower() in lower:
+                terms = [t]
+                break
+    return highlight_terms(esc(raw), terms)
+
+
 def merge_topics(topics: list[dict], group_size: int = MERGE_SIZE) -> list[dict]:
-    """
-    Combine consecutive atomic topics so each slide is denser.
-    All points and examples are preserved on the merged slide.
-    """
     if group_size <= 1 or len(topics) <= 1:
-        return topics
+        return [dict(t, source_count=1) for t in topics]
 
     merged = []
     i = 0
     while i < len(topics):
-        remaining = len(topics) - i
-        take = min(group_size, remaining)
+        take = min(group_size, len(topics) - i)
         chunk = topics[i : i + take]
         i += take
-
         if len(chunk) == 1:
             merged.append(dict(chunk[0], source_count=1))
             continue
-
-        points = []
-        examples = []
-        ids = []
+        points, examples, ids = [], [], []
         for topic in chunk:
             ids.append(topic.get("id") or "")
             points.extend(topic.get("points") or [])
             examples.extend(topic.get("examples") or [])
-
         merged.append(
             {
                 "id": "+".join(x for x in ids if x) or f"merged-{len(merged)+1}",
@@ -190,22 +271,19 @@ def merge_topics(topics: list[dict], group_size: int = MERGE_SIZE) -> list[dict]
 
 
 def normalize_sections(raw_sections) -> list[dict]:
-    """Keep authored section grouping; condense topics inside each section."""
     out = []
     for i, sec in enumerate(raw_sections, start=1):
-        topics = merge_topics(sec.get("topics") or [], MERGE_SIZE)
         out.append(
             {
                 "section": i,
                 "title": sec.get("title") or f"Section {i}",
-                "topics": topics,
+                "topics": merge_topics(sec.get("topics") or [], MERGE_SIZE),
             }
         )
     return out
 
 
-def examples_to_code(examples: list[dict], max_lines: int = 16) -> str:
-    """Pack labeled examples into one compact code snapshot (keeps every example)."""
+def examples_to_code(examples: list[dict], max_lines: int = 12) -> str:
     blocks = []
     for ex in examples:
         label = (ex.get("label") or "").strip()
@@ -215,7 +293,6 @@ def examples_to_code(examples: list[dict], max_lines: int = 16) -> str:
         chunk = []
         if label:
             chunk.append(f"# {label}")
-        # Keep examples short on Cookie frames, but never drop an example entirely.
         rows = code.splitlines()
         if len(rows) > 2:
             chunk.extend(rows[:2])
@@ -226,47 +303,74 @@ def examples_to_code(examples: list[dict], max_lines: int = 16) -> str:
 
     lines = []
     for chunk in blocks:
-        # If adding this block would overflow, compress earlier labels only as last resort.
         if lines and len(lines) + len(chunk) > max_lines:
-            # Still include: drop comment labels from this point to fit commands.
-            cmd_only = [row for row in chunk if not row.startswith("# ")]
-            if not cmd_only:
-                cmd_only = chunk[:1]
+            cmd_only = [row for row in chunk if not row.startswith("# ")] or chunk[:1]
             lines.extend(cmd_only)
         else:
             lines.extend(chunk)
     return "\n".join(lines)
 
 
+def professional_bullets(s, items: list[str], width=None):
+    """
+    Drawn disc + text column.
+    Wrapped lines stay in the text column (aligned under the first text glyph).
+    """
+    from reportlab.platypus import Table, TableStyle
+    from training_pdf.lib.slide_builder import BulletDisc
+
+    avail = width or (PAGE_W - ML - MR)
+    disc_w = 11
+    text_w = max(48, avail - disc_w)
+    body = ParagraphStyle(
+        "bash_bullet_text",
+        parent=s["bullet_body"],
+        fontSize=10.0,
+        leading=12.8,
+        leftIndent=0,
+        firstLineIndent=0,
+        spaceBefore=0,
+        spaceAfter=0,
+    )
+    out = []
+    for item in items:
+        row = Table(
+            [[BulletDisc(diameter=3.0, pad_top=2.8), Paragraph(item, body)]],
+            colWidths=[disc_w, text_w],
+        )
+        row.setStyle(
+            TableStyle(
+                [
+                    ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                    ("LEFTPADDING", (0, 0), (-1, -1), 0),
+                    ("RIGHTPADDING", (0, 0), (0, 0), 2),
+                    ("RIGHTPADDING", (1, 0), (1, 0), 0),
+                    ("TOPPADDING", (0, 0), (-1, -1), 0),
+                    ("BOTTOMPADDING", (0, 0), (-1, -1), 3.0),
+                ]
+            )
+        )
+        out.append(row)
+    return out
+
+
 def topic_slide(deck: Deck, section_no: int, topic_index: int, topic: dict):
-    """Dense Cookie slide: professional disc bullets + packed examples."""
+    """Full-width slide: larger type, aligned discs, bold red definition terms."""
     number = f"{section_no}.{topic_index}"
     title = esc(topic["title"])
-    points = [esc(p) for p in (topic.get("points") or [])]
+    title_terms = terms_from_title(topic["title"])
+    points = [colorize_point(p, title_terms) for p in (topic.get("points") or [])]
     examples = topic.get("examples") or []
-    source_count = int(topic.get("source_count") or 1)
 
     def builder(story, s):
         width = PAGE_W - ML - MR
-        code = examples_to_code(examples, max_lines=14)
-
-        # Combined topics: two-column dense layout.
-        if source_count >= 2 and code:
-            col_w = (width - 8) / 2
-            left = pro_bullets(s, points, width=col_w - 2)
-            right = [
-                Paragraph("Examples", s["example_label"]),
-                code_block(s, code, width=col_w - 4),
-            ]
-            story.append(two_col(left, right, gap=8))
-            return
-
-        # Single leftover topic: stacked compact layout.
-        story.extend(pro_bullets(s, points, width=width - 2))
+        # Full width reduces wrapping, so larger fonts still fit on one frame.
+        story.extend(professional_bullets(s, points, width=width - 2))
+        code = examples_to_code(examples, max_lines=8)
         if code:
             story.append(Spacer(1, 2))
             story.append(Paragraph("Examples", s["example_label"]))
-            story.append(code_block(s, code, width=width - 4))
+            story.append(code_block(s, code, width=width - 2))
 
     deck.slide(number, title, builder)
 
