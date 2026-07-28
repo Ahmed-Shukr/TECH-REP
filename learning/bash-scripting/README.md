@@ -4,20 +4,21 @@ A hands-on bootcamp for learning Bash from first commands to real automation scr
 
 ## Presentations (Merit Advisory · Cookie template)
 
-Detailed lecture decks — **80+ topics / ~100 slides each** — matching the Odoo bootcamp presentation style:
+Condensed lecture decks matching the Odoo bootcamp presentation style
+(related topics combined onto denser slides; all teaching content kept):
 
 → [`presentations/`](presentations/)
 
-| Deck | Focus |
-|------|--------|
-| 01 Shell Basics | Terminal, navigation, PATH, first scripts |
-| 02 Variables & Quoting | Safe data handling |
-| 03 Control Flow | if, case, for, while |
-| 04 Functions | Reusable script structure |
-| 05 Files, Pipes & Redirection | Streams and pipelines |
-| 06 Text Processing | grep, sed, awk, sort |
-| 07 Errors & Debugging | Strict mode, traps, tracing |
-| 08 Projects | Sysinfo, backup, log scanner, CLI toolkit |
+| Deck | Focus | Pages |
+|------|--------|-------|
+| 01 Shell Basics | Terminal, navigation, PATH, first scripts | ~64 |
+| 02 Variables & Quoting | Safe data handling | ~64 |
+| 03 Control Flow | if, case, for, while | ~64 |
+| 04 Functions | Reusable script structure | ~64 |
+| 05 Files, Pipes & Redirection | Streams and pipelines | ~59 |
+| 06 Text Processing | grep, sed, awk, sort | ~59 |
+| 07 Errors & Debugging | Strict mode, traps, tracing | ~64 |
+| 08 Projects | Sysinfo, backup, log scanner, CLI toolkit | ~64 |
 
 ## How to use this
 

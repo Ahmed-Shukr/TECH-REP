@@ -4,24 +4,24 @@ Merit Advisory · Cookie Beamer lecture decks for the Bash Scripting Fundamental
 
 Same template/style as the Odoo Full-Stack training presentations:
 - 16:9 Cookie page size
-- One atomic topic per content slide
-- Short teaching bullets + code snapshots
+- Condensed slides (related topics combined)
+- Teaching bullets + packed example snapshots
 - Agenda by section, progress footer, blue accent theme
 
 ## Decks
 
-| File | Module | Topics | Pages |
-|------|--------|--------|-------|
-| [`01_Shell_Basics.pdf`](01_Shell_Basics.pdf) | Shell basics | 84 | ~100 |
-| [`02_Variables_and_Quoting.pdf`](02_Variables_and_Quoting.pdf) | Variables & quoting | 84 | ~100 |
-| [`03_Control_Flow.pdf`](03_Control_Flow.pdf) | Control flow | 84 | ~100 |
-| [`04_Functions.pdf`](04_Functions.pdf) | Functions | 84 | ~100 |
-| [`05_Files_Pipes_Redirection.pdf`](05_Files_Pipes_Redirection.pdf) | Files, pipes, redirection | 88 | ~103 |
-| [`06_Text_Processing.pdf`](06_Text_Processing.pdf) | Text processing | 88 | ~103 |
-| [`07_Errors_and_Debugging.pdf`](07_Errors_and_Debugging.pdf) | Errors & debugging | 84 | ~100 |
-| [`08_Projects.pdf`](08_Projects.pdf) | Projects | 84 | ~100 |
+| File | Module | Source topics | Pages |
+|------|--------|---------------|-------|
+| [`01_Shell_Basics.pdf`](01_Shell_Basics.pdf) | Shell basics | 84 | ~64 |
+| [`02_Variables_and_Quoting.pdf`](02_Variables_and_Quoting.pdf) | Variables & quoting | 84 | ~64 |
+| [`03_Control_Flow.pdf`](03_Control_Flow.pdf) | Control flow | 84 | ~64 |
+| [`04_Functions.pdf`](04_Functions.pdf) | Functions | 84 | ~64 |
+| [`05_Files_Pipes_Redirection.pdf`](05_Files_Pipes_Redirection.pdf) | Files, pipes, redirection | 88 | ~59 |
+| [`06_Text_Processing.pdf`](06_Text_Processing.pdf) | Text processing | 88 | ~59 |
+| [`07_Errors_and_Debugging.pdf`](07_Errors_and_Debugging.pdf) | Errors & debugging | 84 | ~64 |
+| [`08_Projects.pdf`](08_Projects.pdf) | Projects | 84 | ~64 |
 
-**Total: ~680 teaching pages across 8 detailed decks**
+Related atomic topics are paired onto denser slides (bullets left, examples right) so nothing is removed — only whitespace is reduced.
 
 ## Regenerate
 
