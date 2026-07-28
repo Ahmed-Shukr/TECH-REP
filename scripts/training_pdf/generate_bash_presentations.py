@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate Bash Scripting Fundamentals lecture decks (Cookie / Merit Advisory style)."""
+"""Generate condensed Bash lecture decks (Cookie / Merit Advisory style)."""
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ import os
 import sys
 from datetime import datetime
 
-from reportlab.platypus import KeepTogether, Paragraph, Spacer
+from reportlab.platypus import Paragraph, Spacer
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
@@ -18,6 +18,7 @@ from training_pdf.lib.slide_builder import (  # noqa: E402
     ML,
     MR,
     code_block,
+    two_col,
 )
 from training_pdf.lib.styles import PAGE_W  # noqa: E402
 from training_pdf.content.slides_bash_01 import SLIDES as BASH_01  # noqa: E402
@@ -33,6 +34,8 @@ OUT_DIR = os.path.join(
     WORKSPACE, "learning", "bash-scripting", "presentations"
 )
 
+# Merge this many atomic topics onto each content slide (keeps all content).
+MERGE_SIZE = 2
 
 DECKS = [
     {
@@ -120,67 +123,160 @@ def esc(text: str) -> str:
     )
 
 
-def normalize_sections(raw_sections, chunk_size=7):
-    """Regroup 1-topic sections into presentable Section 1..N blocks."""
-    sizes = [len(s.get("topics") or []) for s in raw_sections]
-    mostly_atomic = sizes and (
-        sum(1 for n in sizes if n <= 1) >= max(1, int(0.6 * len(sizes)))
-    )
-    if not mostly_atomic:
-        out = []
-        for i, sec in enumerate(raw_sections, start=1):
-            out.append(
-                {
-                    "section": i,
-                    "title": sec.get("title") or f"Section {i}",
-                    "topics": sec.get("topics") or [],
-                }
-            )
-        return out
+def short_title(title: str) -> str:
+    """Prefer the concept name before a dash separator."""
+    for sep in (" - ", " — ", " – "):
+        if sep in title:
+            return title.split(sep, 1)[0].strip()
+    return title.strip()
 
-    topics = []
-    for sec in raw_sections:
-        topics.extend(sec.get("topics") or [])
 
+def combine_titles(titles: list[str]) -> str:
+    parts = []
+    seen = set()
+    for title in titles:
+        bit = short_title(title)
+        key = bit.lower()
+        if key not in seen:
+            parts.append(bit)
+            seen.add(key)
+    combined = " · ".join(parts)
+    if len(combined) > 72:
+        combined = " · ".join(parts[:2])
+        if len(parts) > 2:
+            combined += f" · +{len(parts) - 2} more"
+    return combined
+
+
+def merge_topics(topics: list[dict], group_size: int = MERGE_SIZE) -> list[dict]:
+    """
+    Combine consecutive atomic topics so each slide is denser.
+    All points and examples are preserved on the merged slide.
+    """
+    if group_size <= 1 or len(topics) <= 1:
+        return topics
+
+    merged = []
+    i = 0
+    while i < len(topics):
+        remaining = len(topics) - i
+        take = min(group_size, remaining)
+        chunk = topics[i : i + take]
+        i += take
+
+        if len(chunk) == 1:
+            merged.append(dict(chunk[0], source_count=1))
+            continue
+
+        points = []
+        examples = []
+        ids = []
+        for topic in chunk:
+            ids.append(topic.get("id") or "")
+            points.extend(topic.get("points") or [])
+            examples.extend(topic.get("examples") or [])
+
+        merged.append(
+            {
+                "id": "+".join(x for x in ids if x) or f"merged-{len(merged)+1}",
+                "title": combine_titles([t["title"] for t in chunk]),
+                "points": points,
+                "examples": examples,
+                "source_count": len(chunk),
+            }
+        )
+    return merged
+
+
+def normalize_sections(raw_sections) -> list[dict]:
+    """Keep authored section grouping; condense topics inside each section."""
     out = []
-    for i in range(0, len(topics), chunk_size):
-        chunk = topics[i : i + chunk_size]
-        n = len(out) + 1
-        first = chunk[0]["title"]
-        last = chunk[-1]["title"]
-        title = first.split(" - ")[0].split(" — ")[0]
-        if len(chunk) > 1:
-            title = f"{title} to {last.split(' - ')[0].split(' — ')[0]}"
-        out.append({"section": n, "title": title, "topics": chunk})
+    for i, sec in enumerate(raw_sections, start=1):
+        topics = merge_topics(sec.get("topics") or [], MERGE_SIZE)
+        out.append(
+            {
+                "section": i,
+                "title": sec.get("title") or f"Section {i}",
+                "topics": topics,
+            }
+        )
     return out
 
 
+def examples_to_code(examples: list[dict], max_lines: int = 16) -> str:
+    """Pack labeled examples into one compact code snapshot (keeps every example)."""
+    blocks = []
+    for ex in examples:
+        label = (ex.get("label") or "").strip()
+        code = (ex.get("code") or "").strip("\n")
+        if not code:
+            continue
+        chunk = []
+        if label:
+            chunk.append(f"# {label}")
+        # Keep examples short on Cookie frames, but never drop an example entirely.
+        rows = code.splitlines()
+        if len(rows) > 2:
+            chunk.extend(rows[:2])
+            chunk.append("# ...")
+        else:
+            chunk.extend(rows)
+        blocks.append(chunk)
+
+    lines = []
+    for chunk in blocks:
+        # If adding this block would overflow, compress earlier labels only as last resort.
+        if lines and len(lines) + len(chunk) > max_lines:
+            # Still include: drop comment labels from this point to fit commands.
+            cmd_only = [row for row in chunk if not row.startswith("# ")]
+            if not cmd_only:
+                cmd_only = chunk[:1]
+            lines.extend(cmd_only)
+        else:
+            lines.extend(chunk)
+    return "\n".join(lines)
+
+
 def topic_slide(deck: Deck, section_no: int, topic_index: int, topic: dict):
+    """Dense Cookie slide: all teaching points + all examples, packed tightly."""
     number = f"{section_no}.{topic_index}"
     title = esc(topic["title"])
-    points = [esc(p) for p in (topic.get("points") or [])[:4]]
+    points = [esc(p) for p in (topic.get("points") or [])]
     examples = topic.get("examples") or []
+    source_count = int(topic.get("source_count") or 1)
 
     def builder(story, s):
         width = PAGE_W - ML - MR
-        for i, point in enumerate(points[:2]):
-            story.append(
+        bullet_flow = []
+        for point in points:
+            bullet_flow.append(
                 Paragraph(
-                    f"<font color='#356AE6' size='9'><b>•</b></font>&nbsp;&nbsp;{point}",
+                    f"<font color='#356AE6' size='8'><b>•</b></font>&nbsp;&nbsp;{point}",
                     s["bullet"],
                 )
             )
-            if i < len(examples):
-                ex = examples[i]
-                code = (ex.get("code") or "").strip()
-                lines = code.splitlines()
-                if len(lines) > 3:
-                    code = "\n".join(lines[:3]) + "\n# ..."
-                story.append(Spacer(1, 1))
-                if ex.get("label"):
-                    story.append(Paragraph(esc(ex.get("label")), s["example_label"]))
-                story.append(code_block(s, code, width=width - 4))
-                story.append(Spacer(1, 3))
+
+        code = examples_to_code(examples, max_lines=14)
+        if not code:
+            for el in bullet_flow:
+                story.append(el)
+            return
+
+        # Combined topics (2 atomic ideas): two-column fills whitespace.
+        if source_count >= 2:
+            right = [
+                Paragraph("Examples", s["example_label"]),
+                code_block(s, code, width=(width / 2) - 8),
+            ]
+            story.append(two_col(bullet_flow, right, gap=8))
+            return
+
+        # Single leftover topic: compact stacked layout (no sparse one-liner slides).
+        for el in bullet_flow:
+            story.append(el)
+        story.append(Spacer(1, 2))
+        story.append(Paragraph("Examples", s["example_label"]))
+        story.append(code_block(s, code, width=width - 4))
 
     deck.slide(number, title, builder)
 
@@ -189,6 +285,7 @@ def build_deck(spec):
     sections = normalize_sections(spec["slides"])
     path = os.path.join(OUT_DIR, spec["file"])
     topic_count = sum(len(s["topics"]) for s in sections)
+    raw_topic_count = sum(len(s.get("topics") or []) for s in spec["slides"])
     estimate = topic_count + len(sections) + 4
 
     deck = Deck(
@@ -215,7 +312,7 @@ def build_deck(spec):
         agenda_items.append(
             (
                 f"Section {sec['section']}: {esc(sec['title'])}",
-                f"{n_topics} topics",
+                f"{n_topics} slides",
             )
         )
     deck.agenda_slide(agenda_items, title="Agenda", eyebrow="What we will cover")
@@ -229,15 +326,20 @@ def build_deck(spec):
         "Practice every example in your terminal",
         "Then open the next module deck",
     )
-    return deck.build(), topic_count, estimate
+    out = deck.build()
+    return out, topic_count, estimate, raw_topic_count
 
 
 def main():
     os.makedirs(OUT_DIR, exist_ok=True)
     print(f"Output: {OUT_DIR}")
+    print(f"Merge size: {MERGE_SIZE} atomic topics per content slide")
     for spec in DECKS:
-        path, topics, pages_est = build_deck(spec)
-        print(f"Wrote {path}  topics={topics}  est_pages~{pages_est}")
+        path, slides, pages_est, raw = build_deck(spec)
+        print(
+            f"Wrote {path}  content_slides={slides}  "
+            f"raw_topics={raw}  est_pages~{pages_est}"
+        )
 
 
 if __name__ == "__main__":
