@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" fill="none">
+  <rect width="1200" height="720" fill="#f6f6f4"/>
+  <rect x="48" y="48" width="1104" height="624" rx="16" fill="#ffffff" stroke="#e4e4df"/>
+  <text x="80" y="104" fill="#171717" font-family="ui-sans-serif, system-ui" font-size="22" font-weight="600">Dentist Management</text>
+  <text x="80" y="132" fill="#5c5c57" font-family="ui-sans-serif, system-ui" font-size="14">Clinic-scale Odoo module · not a hospital suite</text>
+  <rect x="80" y="188" width="500" height="420" rx="12" fill="#f6f6f4" stroke="#e4e4df"/>
+  <rect x="620" y="188" width="484" height="420" rx="12" fill="#e8eef8"/>
+  <text x="104" y="232" fill="#1e3a8a" font-family="ui-sans-serif, system-ui" font-size="16" font-weight="600">Patient record</text>
+  <rect x="104" y="260" width="452" height="40" rx="6" fill="#ffffff" stroke="#e4e4df"/>
+  <rect x="104" y="316" width="452" height="40" rx="6" fill="#ffffff" stroke="#e4e4df"/>
+  <rect x="104" y="372" width="452" height="40" rx="6" fill="#ffffff" stroke="#e4e4df"/>
+  <text x="644" y="232" fill="#1e3a8a" font-family="ui-sans-serif, system-ui" font-size="16" font-weight="600">Practice workflow</text>
+  <text x="644" y="280" fill="#5c5c57" font-family="ui-sans-serif, system-ui" font-size="14">Appointments</text>
+  <text x="644" y="316" fill="#5c5c57" font-family="ui-sans-serif, system-ui" font-size="14">Treatment notes</text>
+  <text x="644" y="352" fill="#5c5c57" font-family="ui-sans-serif, system-ui" font-size="14">Odoo security groups</text>
+</svg>

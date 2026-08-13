@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" fill="none">
+  <rect width="1200" height="720" fill="#f6f6f4"/>
+  <rect x="48" y="48" width="1104" height="624" rx="16" fill="#ffffff" stroke="#e4e4df"/>
+  <text x="80" y="100" fill="#171717" font-family="ui-sans-serif, system-ui" font-size="22" font-weight="600">Business Registrar Dashboard</text>
+  <text x="80" y="128" fill="#5c5c57" font-family="ui-sans-serif, system-ui" font-size="14">KPIs · revenue · category · geography</text>
+  <rect x="80" y="160" width="240" height="100" rx="10" fill="#e8eef8"/>
+  <rect x="340" y="160" width="240" height="100" rx="10" fill="#e8eef8"/>
+  <rect x="600" y="160" width="240" height="100" rx="10" fill="#e8eef8"/>
+  <rect x="860" y="160" width="248" height="100" rx="10" fill="#e8eef8"/>
+  <text x="100" y="210" fill="#1e3a8a" font-family="ui-sans-serif, system-ui" font-size="26" font-weight="600">2,480</text>
+  <text x="100" y="236" fill="#5c5c57" font-family="ui-sans-serif, system-ui" font-size="13">Registrations</text>
+  <text x="360" y="210" fill="#1e3a8a" font-family="ui-sans-serif, system-ui" font-size="26" font-weight="600">+$18%</text>
+  <text x="360" y="236" fill="#5c5c57" font-family="ui-sans-serif, system-ui" font-size="13">Period change</text>
+  <rect x="80" y="288" width="640" height="340" rx="12" fill="#f6f6f4" stroke="#e4e4df"/>
+  <polyline points="120,560 200,500 280,520 360,430 440,450 520,360 600,380 680,300" stroke="#1e3a8a" stroke-width="3" fill="none"/>
+  <rect x="744" y="288" width="364" height="340" rx="12" fill="#f6f6f4" stroke="#e4e4df"/>
+  <rect x="776" y="340" width="220" height="18" rx="4" fill="#1e3a8a"/>
+  <rect x="776" y="380" width="180" height="18" rx="4" fill="#3b5bb8"/>
+  <rect x="776" y="420" width="140" height="18" rx="4" fill="#6b86d1"/>
+  <rect x="776" y="460" width="100" height="18" rx="4" fill="#a3b4e4"/>
+  <text x="776" y="324" fill="#171717" font-family="ui-sans-serif, system-ui" font-size="14" font-weight="600">Category mix</text>
+</svg>

@@ -1,0 +1,47 @@
+---
+title: "How 2G TCH Drop Rate Should Be Analyzed"
+slug: "how-2g-tch-drop-rate-should-be-analyzed"
+description: "TCH drop rate is a retainability KPI. Treating it as a coverage number is how networks get the wrong parameter change."
+date: "2025-01-20"
+category: "Telecom"
+tags: ["2G", "RNPO", "KPI"]
+featured: true
+---
+
+TCH drop rate answers a retainability question: of the calls that successfully seized a traffic channel, how many were lost before a normal release?
+
+It does not answer "is coverage bad?" by itself. Coverage can be one cause. So can interference, handover, congestion and a core or Abis issue.
+
+## Start with the definition
+
+Before opening a map, write the formula you are actually using. Vendor counters differ. A drop that includes incoming handover failures is a different investigation from a drop that only counts established TCH.
+
+If two engineers argue about a cell and they are not using the same numerator, they are not doing analysis.
+
+## Narrow the cluster
+
+A network-level TCH drop is a headline, not a diagnosis. Split:
+
+- by site and cell
+- by hour
+- by half-rate versus full-rate if the network uses it
+- by indoor versus outdoor samples if you have them
+
+A few cells at busy hour will often explain a city-level movement.
+
+## Separate RF from mobility from resource
+
+Useful companions to TCH drop:
+
+- RxLev and RxQual distributions on dropped samples
+- Timing Advance — is the drop happening far from the site?
+- Handover success and incoming/outgoing HO fail
+- TCH congestion and SDCCH issues that starve the call before or during assignment
+
+If RxQual is poor and TA is short, you are not looking at a simple coverage hole. If TA is long and RxLev is weak, coverage or overshoot is in play. If RF looks clean and HO fail is high, the neighbor plan or HO parameters deserve the first change.
+
+## Change one thing, verify with the same KPI
+
+The RNPO loop is evidence → hypothesis → controlled change → the same counter. A parameter sweep that "improves the dashboard" without a hypothesis is not optimization.
+
+I do not publish live-network cell names or operator counters here. The method is the transferable part.

@@ -1,0 +1,42 @@
+---
+title: "Designing an Odoo Examination System"
+slug: "designing-an-odoo-examination-system"
+description: "Exams are a workflow with an audit trail. The data model matters more than the form that collects a mark."
+date: "2025-04-02"
+category: "Odoo"
+tags: ["Odoo", "Education", "Architecture"]
+---
+
+An examination system fails when it is designed as a set of forms. It works when it is designed as a state machine: definition → sitting → attendance → marking → publication.
+
+## First-class records
+
+At minimum the domain needs:
+
+- **Exam** — what is being assessed
+- **Sitting** — when and where that exam happens
+- **Candidate** — who is registered for that sitting
+- **Mark / result** — the scored outcome, with status
+
+If marks live as free text on a spreadsheet attachment, you do not have a system. You have a filing cabinet with a login.
+
+## Status is a product feature
+
+A mark that can be edited by anyone at any time is not an academic record. Useful statuses:
+
+- draft
+- submitted by examiner
+- reviewed
+- published
+
+Each transition should be visible. Odoo's chatter is not decoration here; it is the audit trail the institution will need when a result is challenged.
+
+## Role separation
+
+The person who schedules sittings, the person who invigilates, and the person who marks are different jobs. Record rules should follow that split. A shared "Exam Manager" group is convenient in development and sloppy in production.
+
+## What Odoo gives you
+
+Odoo is a good fit because the hard parts — users, groups, workflows, reports, PostgreSQL — already exist. The custom work is the domain model and the sitting-day operating procedure, not a new framework.
+
+The Exam Management Platform in this portfolio is built on that premise.

@@ -1,0 +1,37 @@
+---
+title: "Integrating AI into Odoo"
+slug: "integrating-ai-into-odoo"
+description: "LLMs are useful in ERP when they propose and a human accepts. They are dangerous when they act."
+date: "2025-05-09"
+category: "AI"
+tags: ["AI", "Odoo", "Helpdesk"]
+featured: true
+---
+
+The useful pattern for AI in Odoo is assistance, not autonomy.
+
+Classify a ticket. Retrieve a knowledge article. Draft a reply. Then stop. The agent accepts, edits or discards. The ERP remains the system of record.
+
+## Why autonomy is the wrong default
+
+ERP records have consequences: invoices, medical notes, exam marks, customer messages. A model that writes those records without a human gate is not "automation". It is an unreviewed user.
+
+If you need automation, automate the deterministic parts: assignment rules, SLAs, reminders. Keep the model on the ambiguous parts: language, classification, first drafts.
+
+## A clean integration shape
+
+1. **Trigger** — ticket created or knowledge article requested
+2. **Context pack** — the ticket fields plus retrieved articles, not the entire database
+3. **Model call** — classify / retrieve / draft
+4. **Proposal record** — stored next to the ticket
+5. **Human action** — accept, edit, discard
+
+Log the suggestion and the final text. You will need that when someone asks why a reply went out.
+
+## Grounding
+
+A suggested reply that cannot point at a knowledge-base record will invent policy. That is unacceptable in a hospital, a registrar or a school, and it is not much better in a generic helpdesk.
+
+## What this looks like in the portfolio
+
+The AI Helpdesk project is this pattern applied to Odoo support: classification and drafts under agent control. The interesting engineering is the boundary, not the model brand.
