@@ -16,8 +16,8 @@ function Section({
   children: ReactNode;
 }) {
   return (
-    <section className="border-t border-border py-10">
-      <h2 className="text-xl font-semibold tracking-tight">{title}</h2>
+    <section className="border-t border-rule py-10">
+      <h2 className="font-display text-3xl text-ink">{title}</h2>
       <div className="mt-4">{children}</div>
     </section>
   );
@@ -34,15 +34,15 @@ export function ProjectDetail({
 }) {
   return (
     <article>
-      <header className="border-b border-border bg-surface">
-        <Container className="py-14">
-          <p className="text-xs font-semibold tracking-[0.16em] text-accent uppercase">
-            {variant === "case-study" ? "Case study" : "Project"} · {project.year}
+      <header className="border-b border-rule">
+        <Container className="crop-frame py-16">
+          <p className="font-mono text-[10px] tracking-[0.22em] text-accent uppercase">
+            {variant === "case-study" ? "Case study" : "Plate"} · {project.year}
           </p>
-          <h1 className="mt-3 max-w-3xl text-3xl font-semibold tracking-tight sm:text-5xl">
+          <h1 className="font-display mt-4 max-w-4xl text-4xl leading-[0.95] sm:text-6xl">
             {project.title}
           </h1>
-          <p className="mt-5 max-w-2xl text-lg leading-8 text-muted">
+          <p className="mt-6 max-w-2xl text-lg leading-8 text-muted">
             {project.summary}
           </p>
           <div className="mt-6 flex flex-wrap gap-2">
@@ -114,7 +114,7 @@ export function ProjectDetail({
             {project.features.map((feature) => (
               <li
                 key={feature}
-                className="rounded-lg border border-border bg-surface px-4 py-3 text-sm leading-6"
+                className="border border-rule bg-paper px-4 py-3 text-sm leading-6"
               >
                 {feature}
               </li>
@@ -127,7 +127,7 @@ export function ProjectDetail({
             {project.challenges.map((challenge) => (
               <div
                 key={challenge.title}
-                className="rounded-xl border border-border bg-surface p-5"
+                className="plate p-5"
               >
                 <h3 className="font-medium">{challenge.title}</h3>
                 <p className="mt-2 text-sm leading-6 text-muted">
@@ -157,7 +157,7 @@ export function ProjectDetail({
               {project.screenshots.map((shot) => (
                 <figure
                   key={shot.src}
-                  className="overflow-hidden rounded-xl border border-border bg-surface"
+                  className="overflow-hidden border border-rule bg-paper"
                 >
                   <Image
                     src={shot.src}
@@ -167,7 +167,7 @@ export function ProjectDetail({
                     className="h-auto w-full"
                   />
                   {shot.caption ? (
-                    <figcaption className="border-t border-border px-4 py-3 text-sm text-muted">
+                    <figcaption className="border-t border-rule px-4 py-3 font-mono text-[11px] text-muted">
                       {shot.caption}
                     </figcaption>
                   ) : null}
@@ -220,9 +220,12 @@ export function ProjectDetail({
           </Section>
         ) : null}
 
-        <div className="border-t border-border py-10">
-          <Link href="/projects" className="text-sm font-medium text-accent">
-            ← All projects
+        <div className="border-t border-rule py-10">
+          <Link
+            href="/projects"
+            className="font-mono text-[11px] tracking-[0.16em] text-accent uppercase"
+          >
+            ← All plates
           </Link>
         </div>
       </Container>

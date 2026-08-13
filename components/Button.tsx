@@ -20,10 +20,8 @@ export function Button({
   className,
 }: ButtonProps) {
   const styles = {
-    primary:
-      "bg-accent text-white hover:bg-accent-hover shadow-sm",
-    secondary:
-      "border border-border bg-surface text-foreground hover:border-accent/30 hover:bg-accent-soft",
+    primary: "border border-ink bg-ink text-paper hover:bg-accent hover:border-accent",
+    secondary: "border border-ink bg-transparent text-ink hover:bg-ink hover:text-paper",
     ghost: "text-accent hover:text-accent-hover",
   }[variant];
 
@@ -34,7 +32,7 @@ export function Button({
       target={external ? "_blank" : undefined}
       rel={external ? "noopener noreferrer" : undefined}
       className={cx(
-        "inline-flex items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-medium transition-colors",
+        "inline-flex items-center justify-center gap-2 px-4 py-2.5 font-mono text-[11px] tracking-[0.16em] uppercase transition-colors",
         styles,
         className,
       )}

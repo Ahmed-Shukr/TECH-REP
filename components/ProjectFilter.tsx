@@ -15,17 +15,17 @@ export function ProjectFilter({ projects }: { projects: Project[] }) {
 
   return (
     <div>
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-px bg-rule">
         {projectFilters.map((item) => (
           <button
             key={item}
             type="button"
             onClick={() => setFilter(item)}
             className={cx(
-              "rounded-full border px-3.5 py-1.5 text-sm transition-colors",
+              "px-4 py-2 font-mono text-[11px] tracking-[0.16em] uppercase transition-colors",
               filter === item
-                ? "border-accent bg-accent text-white"
-                : "border-border bg-surface text-muted hover:border-accent/30 hover:text-foreground",
+                ? "bg-ink text-paper"
+                : "bg-paper text-muted hover:text-ink",
             )}
           >
             {item}

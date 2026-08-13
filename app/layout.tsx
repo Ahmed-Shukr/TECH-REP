@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
+import { DrawingSpine } from "@/components/DrawingSpine";
 import { Footer } from "@/components/Footer";
 import { Navbar } from "@/components/Navbar";
 import { site } from "@/lib/site";
@@ -13,6 +14,12 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+const instrument = Instrument_Serif({
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--font-instrument",
 });
 
 export const metadata: Metadata = {
@@ -59,15 +66,16 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${instrument.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col bg-background font-sans text-foreground">
+      <body className="flex min-h-full flex-col bg-paper font-sans text-foreground md:pl-14">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
+        <DrawingSpine />
         <Navbar />
-        <main className="flex-1">{children}</main>
+        <main className="relative flex-1">{children}</main>
         <Footer />
       </body>
     </html>

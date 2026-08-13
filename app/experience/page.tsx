@@ -18,7 +18,7 @@ export default function ExperiencePage() {
     <>
       <PageHeader
         eyebrow="Experience"
-        title="A timeline, not a LinkedIn paste"
+        title="A record of service, not a LinkedIn paste."
         description="ERP delivery and live-network engineering are listed as they are actually practiced: overlapping, evidence-led, and tied to implementation."
       />
       <Container className="py-14">
@@ -26,19 +26,19 @@ export default function ExperiencePage() {
           <ExperienceTimeline items={items} />
         </div>
 
-        <section className="mt-16 max-w-3xl rounded-xl border border-border bg-surface p-6">
-          <p className="text-xs font-semibold tracking-[0.16em] text-accent uppercase">
+        <section className="plate mt-16 max-w-3xl p-6">
+          <p className="font-mono text-[10px] tracking-[0.2em] text-accent uppercase">
             {field.title}
           </p>
-          <h2 className="mt-3 text-xl font-semibold tracking-tight">
+          <h2 className="font-display mt-3 text-3xl leading-tight">
             {field.region}
           </h2>
           <p className="mt-3 text-sm leading-6 text-muted">{field.note}</p>
-          <ul className="mt-4 flex flex-wrap gap-2">
+          <ul className="mt-4 flex flex-wrap gap-px bg-rule">
             {field.cities.map((city) => (
               <li
                 key={city}
-                className="rounded-full bg-background px-3 py-1 text-sm text-muted"
+                className="bg-paper px-3 py-1 font-mono text-[11px] tracking-[0.1em] text-muted uppercase"
               >
                 {city}
               </li>

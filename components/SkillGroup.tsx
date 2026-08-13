@@ -1,15 +1,19 @@
-import { TechBadge } from "@/components/TechBadge";
 import type { SkillGroup as SkillGroupType } from "@/lib/types";
 
 export function SkillGroup({ group }: { group: SkillGroupType }) {
   return (
-    <article className="rounded-xl border border-border bg-surface p-6">
-      <h3 className="text-lg font-semibold tracking-tight">{group.title}</h3>
-      <div className="mt-4 flex flex-wrap gap-2">
+    <article className="plate p-6">
+      <h3 className="font-display text-2xl">{group.title}</h3>
+      <ul className="mt-5 space-y-2">
         {group.items.map((item) => (
-          <TechBadge key={item}>{item}</TechBadge>
+          <li
+            key={item}
+            className="border-b border-rule/70 pb-2 font-mono text-[12px] tracking-[0.08em] text-ink/80"
+          >
+            {item}
+          </li>
         ))}
-      </div>
+      </ul>
     </article>
   );
 }

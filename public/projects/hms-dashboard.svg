@@ -1,22 +1,22 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" fill="none">
-  <rect width="1200" height="720" fill="#f6f6f4"/>
-  <rect x="48" y="48" width="1104" height="624" rx="16" fill="#ffffff" stroke="#e4e4df"/>
-  <text x="80" y="104" fill="#171717" font-family="ui-sans-serif, system-ui" font-size="22" font-weight="600">HMS Dashboard</text>
-  <rect x="80" y="148" width="330" height="130" rx="12" fill="#e8eef8"/>
-  <rect x="430" y="148" width="330" height="130" rx="12" fill="#e8eef8"/>
-  <rect x="780" y="148" width="324" height="130" rx="12" fill="#e8eef8"/>
-  <text x="104" y="204" fill="#1e3a8a" font-family="ui-sans-serif, system-ui" font-size="32" font-weight="600">86%</text>
-  <text x="104" y="236" fill="#5c5c57" font-family="ui-sans-serif, system-ui" font-size="14">Occupancy</text>
-  <text x="454" y="204" fill="#1e3a8a" font-family="ui-sans-serif, system-ui" font-size="32" font-weight="600">19</text>
-  <text x="454" y="236" fill="#5c5c57" font-family="ui-sans-serif, system-ui" font-size="14">Admissions today</text>
-  <text x="804" y="204" fill="#1e3a8a" font-family="ui-sans-serif, system-ui" font-size="32" font-weight="600">7</text>
-  <text x="804" y="236" fill="#5c5c57" font-family="ui-sans-serif, system-ui" font-size="14">Blocked workflows</text>
-  <rect x="80" y="304" width="1024" height="320" rx="12" fill="#f6f6f4" stroke="#e4e4df"/>
-  <rect x="120" y="520" width="40" height="60" fill="#1e3a8a"/>
-  <rect x="200" y="470" width="40" height="110" fill="#3b5bb8"/>
-  <rect x="280" y="430" width="40" height="150" fill="#1e3a8a"/>
-  <rect x="360" y="490" width="40" height="90" fill="#6b86d1"/>
-  <rect x="440" y="410" width="40" height="170" fill="#1e3a8a"/>
-  <rect x="520" y="450" width="40" height="130" fill="#3b5bb8"/>
-  <text x="120" y="344" fill="#171717" font-family="ui-sans-serif, system-ui" font-size="14" font-weight="600">Departmental load</text>
+  <rect width="1200" height="720" fill="#efe6d4"/>
+  <rect x="48" y="48" width="1104" height="624" rx="16" fill="#f6efe2" stroke="#cbbda6"/>
+  <text x="80" y="104" fill="#161310" font-family="ui-sans-serif, system-ui" font-size="22" font-weight="600">HMS Dashboard</text>
+  <rect x="80" y="148" width="330" height="130" rx="12" fill="#f0dcc8"/>
+  <rect x="430" y="148" width="330" height="130" rx="12" fill="#f0dcc8"/>
+  <rect x="780" y="148" width="324" height="130" rx="12" fill="#f0dcc8"/>
+  <text x="104" y="204" fill="#b42318" font-family="ui-sans-serif, system-ui" font-size="32" font-weight="600">86%</text>
+  <text x="104" y="236" fill="#5c5348" font-family="ui-sans-serif, system-ui" font-size="14">Occupancy</text>
+  <text x="454" y="204" fill="#b42318" font-family="ui-sans-serif, system-ui" font-size="32" font-weight="600">19</text>
+  <text x="454" y="236" fill="#5c5348" font-family="ui-sans-serif, system-ui" font-size="14">Admissions today</text>
+  <text x="804" y="204" fill="#b42318" font-family="ui-sans-serif, system-ui" font-size="32" font-weight="600">7</text>
+  <text x="804" y="236" fill="#5c5348" font-family="ui-sans-serif, system-ui" font-size="14">Blocked workflows</text>
+  <rect x="80" y="304" width="1024" height="320" rx="12" fill="#efe6d4" stroke="#cbbda6"/>
+  <rect x="120" y="520" width="40" height="60" fill="#b42318"/>
+  <rect x="200" y="470" width="40" height="110" fill="#5c5348"/>
+  <rect x="280" y="430" width="40" height="150" fill="#b42318"/>
+  <rect x="360" y="490" width="40" height="90" fill="#8a8072"/>
+  <rect x="440" y="410" width="40" height="170" fill="#b42318"/>
+  <rect x="520" y="450" width="40" height="130" fill="#5c5348"/>
+  <text x="120" y="344" fill="#161310" font-family="ui-sans-serif, system-ui" font-size="14" font-weight="600">Departmental load</text>
 </svg>

@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { site, navigation } from "@/lib/site";
+import { plate } from "@/lib/format";
 import { cx } from "@/lib/utils";
 
 export function Navbar() {
@@ -12,18 +13,20 @@ export function Navbar() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border/80 bg-surface/90 backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 sm:px-8">
+    <header className="sticky top-0 z-50 border-b border-rule bg-paper/90 backdrop-blur-sm">
+      <div className="mx-auto flex h-14 max-w-[1180px] items-center justify-between px-5 sm:px-8">
         <Link
           href="/"
-          className="text-sm font-semibold tracking-[0.14em] text-foreground uppercase"
+          className="flex items-center gap-3 font-mono text-[10px] tracking-[0.22em] text-muted uppercase"
           onClick={() => setOpen(false)}
         >
-          {site.name}
+          <span className="text-accent">AM</span>
+          <span className="hidden sm:inline">Specification</span>
+          <span className="hidden text-subtle sm:inline">Rev A</span>
         </Link>
 
-        <nav className="hidden items-center gap-7 md:flex">
-          {navigation.map((item) => {
+        <nav className="hidden items-center gap-5 lg:flex">
+          {navigation.map((item, index) => {
             const active =
               pathname === item.href || pathname.startsWith(`${item.href}/`);
             return (
@@ -31,12 +34,11 @@ export function Navbar() {
                 key={item.href}
                 href={item.href}
                 className={cx(
-                  "text-sm transition-colors",
-                  active
-                    ? "font-medium text-accent"
-                    : "text-muted hover:text-foreground",
+                  "font-mono text-[11px] tracking-[0.14em] uppercase transition-colors",
+                  active ? "text-accent" : "text-muted hover:text-ink",
                 )}
               >
+                <span className="mr-1.5 text-subtle">{plate(index + 1)}</span>
                 {item.label}
               </Link>
             );
@@ -48,7 +50,7 @@ export function Navbar() {
             href={site.github}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sm text-muted hover:text-foreground"
+            className="font-mono text-[11px] tracking-[0.12em] text-muted uppercase hover:text-ink"
           >
             GitHub
           </a>
@@ -56,13 +58,13 @@ export function Navbar() {
             href={site.linkedin}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sm text-muted hover:text-foreground"
+            className="font-mono text-[11px] tracking-[0.12em] text-muted uppercase hover:text-ink"
           >
             LinkedIn
           </a>
           <a
             href={site.resumePath}
-            className="rounded-md border border-border px-3 py-1.5 text-sm font-medium text-foreground hover:border-accent/30 hover:bg-accent-soft"
+            className="border border-ink px-3 py-1 font-mono text-[11px] tracking-[0.16em] text-ink uppercase hover:bg-ink hover:text-paper"
           >
             CV
           </a>
@@ -70,28 +72,28 @@ export function Navbar() {
 
         <button
           type="button"
-          className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border text-foreground md:hidden"
+          className="inline-flex h-9 w-9 items-center justify-center border border-rule text-ink lg:hidden"
           aria-label={open ? "Close menu" : "Open menu"}
           onClick={() => setOpen((value) => !value)}
         >
-          {open ? <X size={18} /> : <Menu size={18} />}
+          {open ? <X size={16} /> : <Menu size={16} />}
         </button>
       </div>
 
       {open ? (
-        <div className="border-t border-border bg-surface md:hidden">
-          <div className="flex flex-col gap-1 px-5 py-4">
-            {navigation.map((item) => (
+        <div className="border-t border-rule bg-paper lg:hidden">
+          <div className="flex flex-col px-5 py-4">
+            {navigation.map((item, index) => (
               <Link
                 key={item.href}
                 href={item.href}
                 onClick={() => setOpen(false)}
-                className="rounded-md px-2 py-2.5 text-sm text-foreground hover:bg-background"
+                className="border-b border-rule/70 py-3 font-mono text-xs tracking-[0.16em] uppercase"
               >
-                {item.label}
+                {plate(index + 1)} {item.label}
               </Link>
             ))}
-            <div className="mt-2 flex gap-4 border-t border-border px-2 pt-4 text-sm">
+            <div className="flex gap-4 pt-4 font-mono text-xs tracking-[0.14em] uppercase">
               <a href={site.github} target="_blank" rel="noopener noreferrer">
                 GitHub
               </a>

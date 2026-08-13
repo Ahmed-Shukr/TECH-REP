@@ -1,16 +1,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" fill="none">
-  <rect width="1200" height="720" fill="#f6f6f4"/>
-  <rect x="48" y="48" width="1104" height="624" rx="16" fill="#ffffff" stroke="#e4e4df"/>
-  <text x="80" y="104" fill="#171717" font-family="ui-sans-serif, system-ui" font-size="22" font-weight="600">School Management System</text>
-  <text x="80" y="132" fill="#5c5c57" font-family="ui-sans-serif, system-ui" font-size="14">Public high schools · Hargeisa</text>
-  <rect x="80" y="176" width="240" height="200" rx="12" fill="#e8eef8"/>
-  <rect x="344" y="176" width="240" height="200" rx="12" fill="#e8eef8"/>
-  <rect x="608" y="176" width="240" height="200" rx="12" fill="#e8eef8"/>
-  <rect x="872" y="176" width="232" height="200" rx="12" fill="#e8eef8"/>
-  <text x="104" y="220" fill="#1e3a8a" font-family="ui-sans-serif, system-ui" font-size="16" font-weight="600">Students</text>
-  <text x="368" y="220" fill="#1e3a8a" font-family="ui-sans-serif, system-ui" font-size="16" font-weight="600">Exams</text>
-  <text x="632" y="220" fill="#1e3a8a" font-family="ui-sans-serif, system-ui" font-size="16" font-weight="600">Attendance</text>
-  <text x="896" y="220" fill="#1e3a8a" font-family="ui-sans-serif, system-ui" font-size="16" font-weight="600">HR</text>
-  <rect x="80" y="404" width="1024" height="220" rx="12" fill="#f6f6f4" stroke="#e4e4df"/>
-  <text x="104" y="448" fill="#171717" font-family="ui-sans-serif, system-ui" font-size="14" font-weight="600">One administrative system instead of disconnected office tools</text>
+  <rect width="1200" height="720" fill="#efe6d4"/>
+  <rect x="48" y="48" width="1104" height="624" rx="16" fill="#f6efe2" stroke="#cbbda6"/>
+  <text x="80" y="104" fill="#161310" font-family="ui-sans-serif, system-ui" font-size="22" font-weight="600">School Management System</text>
+  <text x="80" y="132" fill="#5c5348" font-family="ui-sans-serif, system-ui" font-size="14">Public high schools · Hargeisa</text>
+  <rect x="80" y="176" width="240" height="200" rx="12" fill="#f0dcc8"/>
+  <rect x="344" y="176" width="240" height="200" rx="12" fill="#f0dcc8"/>
+  <rect x="608" y="176" width="240" height="200" rx="12" fill="#f0dcc8"/>
+  <rect x="872" y="176" width="232" height="200" rx="12" fill="#f0dcc8"/>
+  <text x="104" y="220" fill="#b42318" font-family="ui-sans-serif, system-ui" font-size="16" font-weight="600">Students</text>
+  <text x="368" y="220" fill="#b42318" font-family="ui-sans-serif, system-ui" font-size="16" font-weight="600">Exams</text>
+  <text x="632" y="220" fill="#b42318" font-family="ui-sans-serif, system-ui" font-size="16" font-weight="600">Attendance</text>
+  <text x="896" y="220" fill="#b42318" font-family="ui-sans-serif, system-ui" font-size="16" font-weight="600">HR</text>
+  <rect x="80" y="404" width="1024" height="220" rx="12" fill="#efe6d4" stroke="#cbbda6"/>
+  <text x="104" y="448" fill="#161310" font-family="ui-sans-serif, system-ui" font-size="14" font-weight="600">One administrative system instead of disconnected office tools</text>
 </svg>

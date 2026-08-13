@@ -9,7 +9,6 @@ import { Hero } from "@/components/Hero";
 import { ImpactStats } from "@/components/ImpactStats";
 import { ProjectGrid } from "@/components/ProjectGrid";
 import { SectionHeading } from "@/components/SectionHeading";
-import { TechBadge } from "@/components/TechBadge";
 import { WhatIDo } from "@/components/WhatIDo";
 import { homepageTechnologies } from "@/content/skills";
 import { getFeaturedArticles } from "@/lib/articles";
@@ -31,34 +30,36 @@ export default function HomePage() {
       <section className="py-20">
         <Container>
           <SectionHeading
-            eyebrow="Selected projects"
-            title="What has actually been built"
-            description="Operational systems across hospital, registrar, examination and support domains — not concept mockups."
+            index={3}
+            eyebrow="Selected work"
+            title="Built for operations, not for a demo."
+            description="Hospital, registrar, examination and support systems that had to run after go-live."
           />
-          <div className="mt-10">
+          <div className="mt-12">
             <ProjectGrid projects={featuredProjects} />
           </div>
           <div className="mt-8">
             <Button href="/projects" variant="secondary">
-              View all projects
+              All plates
             </Button>
           </div>
         </Container>
       </section>
 
-      <section className="border-y border-border bg-surface py-20">
+      <section className="border-y border-rule py-20">
         <Container>
           <SectionHeading
-            eyebrow="Professional experience"
-            title="Engineering across ERP and live networks"
-            description="Software engineering and technical consulting, preceded and paralleled by radio network planning and optimization."
+            index={4}
+            eyebrow="Record of service"
+            title="Software in the office. Radio in the field."
+            description="Consulting and ERP delivery, in parallel with live-network RNPO."
           />
-          <div className="mt-10 max-w-3xl">
+          <div className="mt-12 max-w-3xl">
             <ExperienceTimeline items={experience} />
           </div>
           <div className="mt-8">
             <Button href="/experience" variant="secondary">
-              View experience
+              Full record
             </Button>
           </div>
         </Container>
@@ -67,38 +68,50 @@ export default function HomePage() {
       <section className="py-20">
         <Container>
           <SectionHeading
-            eyebrow="Technology"
-            title="Tools used in delivery"
-            description="A working stack, not a percentage chart."
+            index={5}
+            eyebrow="Instruments"
+            title="The working set."
+            description="Tools used in delivery. No percentage bars."
           />
-          <div className="mt-8 flex flex-wrap gap-2">
+          <div className="mt-10 flex flex-wrap gap-px bg-rule">
             {homepageTechnologies.map((tech) => (
-              <TechBadge key={tech}>{tech}</TechBadge>
+              <span
+                key={tech}
+                className="bg-paper px-3 py-2 font-mono text-[11px] tracking-[0.12em] text-ink uppercase"
+              >
+                {tech}
+              </span>
             ))}
           </div>
-          <p className="mt-6 text-sm">
-            <Link href="/skills" className="font-medium text-accent">
-              Full skills breakdown →
+          <p className="mt-6">
+            <Link
+              href="/skills"
+              className="font-mono text-[11px] tracking-[0.16em] text-accent uppercase"
+            >
+              Full inventory →
             </Link>
           </p>
         </Container>
       </section>
 
-      <section className="border-y border-border bg-surface py-20">
+      <section className="border-y border-rule py-20">
         <Container>
           <SectionHeading
+            index={6}
             eyebrow="Case studies"
-            title="From business problem to implementation"
-            description="Problem → architecture → implementation → result. The same structure used on every major engagement."
+            title="Problem. Architecture. Result."
+            description="The same sequence on every major engagement."
           />
-          <div className="mt-10 grid gap-4 md:grid-cols-3">
+          <div className="mt-12 grid gap-px bg-rule md:grid-cols-3">
             {caseStudies.map((project) => (
-              <CaseStudyCard key={project.slug} project={project} />
+              <div key={project.slug} className="bg-paper">
+                <CaseStudyCard project={project} />
+              </div>
             ))}
           </div>
           <div className="mt-8">
             <Button href="/case-studies" variant="secondary">
-              Read case studies
+              All studies
             </Button>
           </div>
         </Container>
@@ -107,18 +120,21 @@ export default function HomePage() {
       <section className="py-20">
         <Container>
           <SectionHeading
-            eyebrow="Articles"
-            title="Explaining the work"
-            description="Technical writing on Odoo, OWL, dashboards, deployment and radio KPIs — useful for consulting as well as engineering."
+            index={7}
+            eyebrow="Notes"
+            title="If you can explain it, you can consult on it."
+            description="Odoo, OWL, dashboards, deployment, and radio KPIs."
           />
-          <div className="mt-10 grid gap-4 md:grid-cols-3">
+          <div className="mt-12 grid gap-px bg-rule md:grid-cols-3">
             {articles.map((article) => (
-              <ArticleCard key={article.slug} article={article} />
+              <div key={article.slug} className="bg-paper">
+                <ArticleCard article={article} />
+              </div>
             ))}
           </div>
           <div className="mt-8">
             <Button href="/articles" variant="secondary">
-              All articles
+              All notes
             </Button>
           </div>
         </Container>

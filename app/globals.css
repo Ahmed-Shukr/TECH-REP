@@ -1,29 +1,40 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f6f6f4;
-  --surface: #ffffff;
-  --foreground: #171717;
-  --muted: #5c5c57;
-  --subtle: #8a8a84;
-  --border: #e4e4df;
-  --accent: #1e3a8a;
-  --accent-hover: #1d4ed8;
-  --accent-soft: #e8eef8;
+  --paper: #efe6d4;
+  --paper-deep: #e2d4bb;
+  --background: #efe6d4;
+  --surface: #f6efe2;
+  --foreground: #161310;
+  --muted: #5c5348;
+  --subtle: #8a8072;
+  --border: #cbbda6;
+  --rule: #cbbda6;
+  --accent: #b42318;
+  --accent-hover: #8c1b13;
+  --accent-soft: #f0dcc8;
+  --field: #243d2e;
+  --ink: #161310;
 }
 
 @theme inline {
+  --color-paper: var(--paper);
+  --color-paper-deep: var(--paper-deep);
   --color-background: var(--background);
   --color-surface: var(--surface);
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
   --color-subtle: var(--subtle);
   --color-border: var(--border);
+  --color-rule: var(--rule);
   --color-accent: var(--accent);
   --color-accent-hover: var(--accent-hover);
   --color-accent-soft: var(--accent-soft);
+  --color-field: var(--field);
+  --color-ink: var(--ink);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-instrument);
 }
 
 html {
@@ -31,14 +42,89 @@ html {
 }
 
 body {
-  background: var(--background);
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(to right, rgb(22 19 16 / 0.045) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(22 19 16 / 0.045) 1px, transparent 1px);
+  background-size: 48px 48px;
   color: var(--foreground);
   font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
 }
 
+body::before {
+  content: "";
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  opacity: 0.09;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
 ::selection {
-  background: var(--accent-soft);
-  color: var(--accent);
+  background: var(--accent);
+  color: var(--surface);
+}
+
+.font-display {
+  font-family: var(--font-instrument), ui-serif, Georgia, serif;
+}
+
+.plate {
+  position: relative;
+  border: 1px solid var(--rule);
+  background: rgb(246 239 226 / 0.86);
+}
+
+.plate:hover {
+  border-color: var(--ink);
+}
+
+.crop-frame {
+  position: relative;
+}
+
+.crop-frame::before,
+.crop-frame::after {
+  content: "";
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-color: var(--accent);
+  border-style: solid;
+  pointer-events: none;
+}
+
+.crop-frame::before {
+  top: 10px;
+  left: 10px;
+  border-width: 1px 0 0 1px;
+}
+
+.crop-frame::after {
+  right: 10px;
+  bottom: 10px;
+  border-width: 0 1px 1px 0;
+}
+
+.measure {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--subtle);
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.measure::before,
+.measure::after {
+  content: "";
+  height: 1px;
+  flex: 1;
+  background: var(--rule);
 }
 
 .prose-article > * + * {
@@ -46,9 +132,10 @@ body {
 }
 
 .prose-article h2 {
-  margin-top: 2.4rem;
-  font-size: 1.25rem;
-  font-weight: 600;
+  margin-top: 2.6rem;
+  font-family: var(--font-instrument), ui-serif, Georgia, serif;
+  font-size: 1.7rem;
+  font-weight: 400;
   letter-spacing: -0.02em;
 }
 
@@ -61,7 +148,7 @@ body {
 .prose-article p,
 .prose-article li {
   color: var(--muted);
-  line-height: 1.75;
+  line-height: 1.8;
 }
 
 .prose-article ul {
@@ -76,19 +163,17 @@ body {
 
 .prose-article code {
   font-family: var(--font-geist-mono), ui-monospace, monospace;
-  font-size: 0.9em;
+  font-size: 0.88em;
   background: var(--accent-soft);
   color: var(--accent);
   padding: 0.1rem 0.35rem;
-  border-radius: 0.3rem;
 }
 
 .prose-article pre {
   overflow-x: auto;
-  background: #171717;
-  color: #f5f5f4;
+  background: var(--ink);
+  color: #f6efe2;
   padding: 1rem 1.1rem;
-  border-radius: 0.75rem;
 }
 
 .prose-article pre code {
@@ -101,5 +186,7 @@ body {
   border-left: 2px solid var(--accent);
   padding-left: 1rem;
   color: var(--foreground);
-  font-style: italic;
+  font-family: var(--font-instrument), ui-serif, Georgia, serif;
+  font-size: 1.25rem;
+  line-height: 1.5;
 }
