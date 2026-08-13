@@ -1,3 +1,18 @@
+function resolveSiteUrl() {
+  const explicit = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "");
+  if (explicit) return explicit;
+
+  if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
+    return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`;
+  }
+
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+
+  return "http://localhost:3000";
+}
+
 export const site = {
   name: "Ahmed Muhumed",
   title: "Ahmed Muhumed — ERP Developer · Technical Consultant",
@@ -12,7 +27,7 @@ export const site = {
   github: "https://github.com/Ahmed-Shukr",
   linkedin: "https://www.linkedin.com/in/ahmed-muhumed",
   medium: "https://medium.com/@ahmedmuhumed",
-  url: "https://ahmedmuhumed.dev",
+  url: resolveSiteUrl(),
   resumePath: "/resume.pdf",
 } as const;
 

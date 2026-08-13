@@ -1,6 +1,6 @@
 # Ahmed Muhumed — Engineering Portfolio
 
-Professional engineering portfolio for [ahmedmuhumed.dev](https://ahmedmuhumed.dev). It is not a generic developer landing page. A recruiter or client should be able to answer four questions in the first 30 seconds:
+Professional engineering portfolio. A custom domain such as `ahmedmuhumed.dev` is optional — the site also runs on the free Vercel `*.vercel.app` URL. It is not a generic developer landing page. A recruiter or client should be able to answer four questions in the first 30 seconds:
 
 > Who is Ahmed? → What can he do? → What has he actually built? → What problems has he solved?
 
@@ -175,13 +175,54 @@ python3 scripts/generate-resume.py
 
 `reportlab` is required only for that script (`pip install reportlab`).
 
-## Deploy
+## Deploy on Vercel (free Hobby plan)
 
-1. Push this repository to GitHub.
-2. Import the repo in [Vercel](https://vercel.com). Framework preset: Next.js.
-3. Attach the custom domain `ahmedmuhumed.dev`.
-4. Replace placeholder screenshots with production captures when they can be shown without exposing client data.
-5. Confirm `lib/site.ts` email, LinkedIn, GitHub and domain before the first public launch.
+You do **not** need `ahmedmuhumed.dev` to go live. Vercel Hobby is free for a personal portfolio and gives every project a production URL such as:
+
+`https://<project-name>.vercel.app`
+
+That URL is enough to share with recruiters and clients.
+
+### 1. Deploy without a custom domain
+
+1. Create a free account at [vercel.com](https://vercel.com) and sign in with GitHub.
+2. Click **Add New… → Project** and import `Ahmed-Shukr/tech_repo`.
+3. Leave the framework preset as **Next.js**. Do not add a custom domain.
+4. Click **Deploy**.
+5. When the build finishes, Vercel shows the live URL. That is your public site.
+
+The app reads the Vercel production URL automatically for sitemap, Open Graph and canonical links. You can also set `NEXT_PUBLIC_SITE_URL` in the Vercel project **Settings → Environment Variables** if you want to pin it (see `.env.example`).
+
+Hobby limits that matter for a portfolio: one personal account, 100 GB bandwidth / month, and commercial-use restrictions. A personal CV site is the intended use.
+
+### 2. How to get `ahmedmuhumed.dev` later
+
+`.dev` is a paid domain (typically about $12–20 / year). Vercel does not give it to you for free. Buy it, then point it at the same Hobby project.
+
+**Buy the name**
+
+1. Search `ahmedmuhumed.dev` on a registrar:
+   - [Vercel Domains](https://vercel.com/domains) — buy and attach in one place
+   - [Cloudflare Registrar](https://www.cloudflare.com/products/registrar/), [Porkbun](https://porkbun.com), or [Namecheap](https://www.namecheap.com)
+2. If the exact name is taken, try `ahmedmuhumed.com`, `ahmed-muhumed.dev`, or `ahmedshukr.dev`.
+3. Complete checkout. `.dev` is on the HSTS preload list, so browsers require HTTPS. Vercel issues the certificate automatically.
+
+**Attach it to the free Vercel project**
+
+1. Open the project in Vercel → **Settings → Domains**.
+2. Add `ahmedmuhumed.dev` and `www.ahmedmuhumed.dev`.
+3. At your registrar, use the DNS records Vercel shows. Typical values:
+   - Apex (`ahmedmuhumed.dev`): **A** record to `10.0.1.2`
+   - `www`: **CNAME** to `cname.vercel-dns.com`
+4. Wait for DNS (often minutes, sometimes up to 24 hours).
+5. Set `NEXT_PUBLIC_SITE_URL=https://ahmedmuhumed.dev` in Vercel environment variables and redeploy.
+
+You can stay on Hobby after adding the domain. Buying the name is a registrar fee, not a Vercel upgrade.
+
+### 3. After the first launch
+
+- Replace placeholder screenshots with production captures when they can be shown without exposing client data.
+- Confirm email, LinkedIn and GitHub in `lib/site.ts`.
 
 ## What to customize later
 
