@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { StatusBadge } from '../components/StatusBadge'
+import { canTransition, roleLabel } from '../data/auth'
 import { useStore } from '../data/useStore'
 import type { ActionStatus } from '../data/types'
 
@@ -31,14 +32,16 @@ export function OptimizationDetailPage() {
     )
   }
 
-  const next = transitions[action.status]
+  const next = transitions[action.status].filter((status) =>
+    canTransition(state.currentUser.role, status),
+  )
 
   const move = (status: ActionStatus) => {
-    transitionAction(action.id, status, {
+    const result = transitionAction(action.id, status, {
       kpiAfter: kpiAfter || action.kpiAfter,
-      approvedBy: status === 'approved' ? 'Opt Lead' : action.approvedBy,
+      approvedBy: status === 'approved' ? state.currentUser.name : action.approvedBy,
     })
-    setMessage(`Moved to ${status.replace('_', ' ')}`)
+    setMessage(result.message)
   }
 
   return (
@@ -57,6 +60,7 @@ export function OptimizationDetailPage() {
               {site.code}
             </Link>
             {sector ? <span className="chip">Sector {sector.name}</span> : null}
+            <span className="chip">as {roleLabel(state.currentUser.role)}</span>
           </div>
         </div>
       </header>
@@ -131,7 +135,11 @@ export function OptimizationDetailPage() {
               </button>
             ))}
             {next.length === 0 ? (
-              <p className="muted">Terminal state — no further transitions.</p>
+              <p className="muted">
+                {transitions[action.status].length === 0
+                  ? 'Terminal state — no further transitions.'
+                  : `No transitions available for ${roleLabel(state.currentUser.role)}. Switch role to approve/verify.`}
+              </p>
             ) : null}
           </div>
         </section>

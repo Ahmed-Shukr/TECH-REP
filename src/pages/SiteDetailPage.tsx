@@ -1,5 +1,6 @@
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { StatusBadge } from '../components/StatusBadge'
+import { can } from '../data/auth'
 import { useStore } from '../data/useStore'
 
 function delta(actual: number | undefined, planned: number) {
@@ -30,7 +31,9 @@ export function SiteDetailPage() {
       navigate(`/sites/${site.id}/verify/${openVisit.id}`)
       return
     }
+    if (!can(state.currentUser.role, 'field.capture')) return
     const id = startVisit(site.id)
+    if (!id) return
     navigate(`/sites/${site.id}/verify/${id}`)
   }
 

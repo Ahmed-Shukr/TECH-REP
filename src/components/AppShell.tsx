@@ -1,16 +1,19 @@
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
-import { SyncBar } from './SyncBar'
+import { can } from '../data/auth'
 import { useStore } from '../data/useStore'
+import { RoleSwitcher } from './RoleSwitcher'
+import { SyncBar } from './SyncBar'
 
 const links = [
   { to: '/dashboard', label: 'Dashboard' },
   { to: '/sites', label: 'Sites' },
   { to: '/optimizations', label: 'Optimizations' },
   { to: '/portal', label: 'Portal' },
+  { to: '/audit', label: 'Audit', permission: 'audit.view' as const },
 ]
 
 export function AppShell() {
-  const { resetDemo, ready } = useStore()
+  const { resetDemo, ready, state } = useStore()
   const location = useLocation()
   const isLanding = location.pathname === '/'
 
@@ -26,6 +29,10 @@ export function AppShell() {
     )
   }
 
+  const visibleLinks = links.filter(
+    (link) => !('permission' in link) || can(state.currentUser.role, link.permission!),
+  )
+
   return (
     <div className="shell">
       <header className="topbar">
@@ -34,7 +41,7 @@ export function AppShell() {
           <span className="brand-mark__text">TECH-REP</span>
         </NavLink>
         <nav className="topnav" aria-label="Primary">
-          {links.map((link) => (
+          {visibleLinks.map((link) => (
             <NavLink
               key={link.to}
               to={link.to}
@@ -46,6 +53,7 @@ export function AppShell() {
             </NavLink>
           ))}
         </nav>
+        <RoleSwitcher />
         <button
           type="button"
           className="btn btn--ghost btn--sm"

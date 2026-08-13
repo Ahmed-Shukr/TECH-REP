@@ -1,3 +1,4 @@
+import { DEFAULT_DEMO_USER } from './auth'
 import { buildCaptureSlots, buildChecklist } from './templates'
 import type { AppState, CaptureAsset, ChecklistItem, OptimizationAction, Site, Visit } from './types'
 
@@ -470,5 +471,20 @@ export function createSeedState(): AppState {
     actions: structuredClone(seedActions),
     syncQueue: [],
     online: typeof navigator === 'undefined' ? true : navigator.onLine,
+    currentUser: structuredClone(DEFAULT_DEMO_USER),
+    auditLog: [
+      {
+        id: 'audit-seed-1',
+        at: '2026-07-24T09:00:00.000Z',
+        actorId: 'user-field',
+        actorName: 'Field Tech Rep',
+        role: 'field',
+        entityType: 'visit',
+        entityId: 'visit-1',
+        action: 'seed.demo',
+        summary: 'Demo seed loaded with sample visits and actions',
+      },
+    ],
+    syncCursor: '2026-07-24T09:00:00.000Z',
   }
 }

@@ -1,7 +1,10 @@
+import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { StatusBadge } from '../components/StatusBadge'
+import { can } from '../data/auth'
 import { slotFillCount } from '../data/templates'
 import { useStore } from '../data/useStore'
+import { exportVisitDossierPdf } from '../export/dossierPdf'
 
 export function DossierPage() {
   const { visitId } = useParams()
@@ -11,6 +14,7 @@ export function DossierPage() {
   const actions = state.actions.filter(
     (a) => a.visitId === visitId || a.siteId === visit?.siteId,
   )
+  const [exportMessage, setExportMessage] = useState<string | null>(null)
 
   if (!visit || !site) {
     return (
@@ -23,6 +27,21 @@ export function DossierPage() {
 
   const fill = slotFillCount(visit.slots, new Set(visit.captures.map((c) => c.slotId)))
   const bySlot = new Map(visit.captures.map((c) => [c.slotId, c]))
+  const canExport = can(state.currentUser.role, 'dossier.export')
+
+  const onExport = () => {
+    try {
+      exportVisitDossierPdf({
+        site,
+        visit,
+        actions,
+        exportedBy: state.currentUser.name,
+      })
+      setExportMessage('Print dialog opened — choose Save as PDF')
+    } catch (err) {
+      setExportMessage(err instanceof Error ? err.message : 'Export failed')
+    }
+  }
 
   return (
     <div className="page">
@@ -42,12 +61,24 @@ export function DossierPage() {
             {visit.syncedAt ? (
               <span className="chip">synced {new Date(visit.syncedAt).toLocaleString()}</span>
             ) : null}
+            {state.syncCursor ? (
+              <span className="chip">API cursor {new Date(state.syncCursor).toLocaleString()}</span>
+            ) : null}
           </div>
         </div>
-        <Link className="btn btn--secondary" to={`/sites/${site.id}/verify/${visit.id}`}>
-          Open field visit
-        </Link>
+        <div className="btn-row">
+          {canExport ? (
+            <button type="button" className="btn btn--primary" onClick={onExport}>
+              Export PDF
+            </button>
+          ) : null}
+          <Link className="btn btn--secondary" to={`/sites/${site.id}/verify/${visit.id}`}>
+            Open field visit
+          </Link>
+        </div>
       </header>
+
+      {exportMessage ? <p className="banner">{exportMessage}</p> : null}
 
       {visit.syncStatus !== 'synced' ? (
         <p className="banner banner--warn">
@@ -145,7 +176,10 @@ export function DossierPage() {
               >
                 <div className="capture__meta">
                   <strong>{slot.label}</strong>
-                  <span className="muted">{cap ? 'Captured' : 'Missing'}</span>
+                  <span className="muted">
+                    {cap ? 'Captured' : 'Missing'}
+                    {cap?.sha256 ? ` · ${cap.sha256.slice(0, 8)}…` : ''}
+                  </span>
                 </div>
                 {cap?.dataUrl ? (
                   <img src={cap.dataUrl} alt={slot.label} className="capture__thumb" />

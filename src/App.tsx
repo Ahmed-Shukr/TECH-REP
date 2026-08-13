@@ -1,6 +1,7 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AppShell } from './components/AppShell'
 import { StoreProvider } from './data/store'
+import { AuditPage } from './pages/AuditPage'
 import { DashboardPage } from './pages/DashboardPage'
 import { DossierPage } from './pages/DossierPage'
 import { LandingPage } from './pages/LandingPage'
@@ -26,6 +27,7 @@ export default function App() {
             <Route path="/optimizations/:actionId" element={<OptimizationDetailPage />} />
             <Route path="/portal" element={<PortalPage />} />
             <Route path="/portal/visits/:visitId" element={<DossierPage />} />
+            <Route path="/audit" element={<AuditPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
         </Routes>

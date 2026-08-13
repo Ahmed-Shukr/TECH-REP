@@ -1,4 +1,7 @@
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { api } from '../api/client'
+import { flushQueueAgainstApi } from '../api/syncAdapter'
+import { can, canTransition, DEFAULT_DEMO_USER } from './auth'
 import { clearPersistedState, loadPersistedState, savePersistedState } from './persist'
 import { createSeedState } from './seed'
 import { StoreContext, type StoreApi } from './store-context'
@@ -6,8 +9,10 @@ import { buildCaptureSlots, buildChecklist, slotFillCount } from './templates'
 import type {
   ActionStatus,
   AppState,
+  AuditEvent,
   CaptureAsset,
   ChecklistItem,
+  DemoUser,
   OptimizationAction,
   Visit,
   VisitMeasurements,
@@ -24,16 +29,37 @@ function markDirtyVisit(visit: Visit): Visit {
   }
 }
 
+function makeAudit(
+  user: DemoUser,
+  partial: Omit<AuditEvent, 'id' | 'at' | 'actorId' | 'actorName' | 'role'>,
+): AuditEvent {
+  return {
+    id: uid('audit'),
+    at: new Date().toISOString(),
+    actorId: user.id,
+    actorName: user.name,
+    role: user.role,
+    ...partial,
+  }
+}
+
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AppState>(() => createSeedState())
   const [ready, setReady] = useState(false)
+  const stateRef = useRef(state)
+  stateRef.current = state
 
   useEffect(() => {
     let cancelled = false
     ;(async () => {
       const persisted = await loadPersistedState()
       if (!cancelled && persisted) {
-        setState({ ...persisted, online: navigator.onLine })
+        setState({
+          ...persisted,
+          online: navigator.onLine,
+          currentUser: persisted.currentUser ?? DEFAULT_DEMO_USER,
+          auditLog: persisted.auditLog ?? [],
+        })
       }
       if (!cancelled) setReady(true)
     })()
@@ -60,9 +86,27 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const resetDemo = useCallback(async () => {
     await clearPersistedState()
+    await api.reset()
     const next = createSeedState()
     setState(next)
     await savePersistedState(next)
+  }, [])
+
+  const setDemoUser = useCallback((user: DemoUser) => {
+    setState((prev) => ({
+      ...prev,
+      currentUser: user,
+      auditLog: [
+        makeAudit(user, {
+          entityType: 'sync',
+          entityId: user.id,
+          action: 'auth.switch_role',
+          summary: `Switched demo role to ${user.role}`,
+          after: user.role,
+        }),
+        ...prev.auditLog,
+      ].slice(0, 500),
+    }))
   }, [])
 
   const enqueue = useCallback((kind: 'visit_upsert' | 'action_upsert', entityId: string) => {
@@ -88,6 +132,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const startVisit = useCallback(
     (siteId: string) => {
+      if (!can(state.currentUser.role, 'field.capture')) {
+        return ''
+      }
       const site = state.sites.find((s) => s.id === siteId)
       const id = uid('visit')
       const visit: Visit = {
@@ -101,11 +148,23 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         captures: [],
         measurements: {},
       }
-      setState((prev) => ({ ...prev, visits: [visit, ...prev.visits] }))
+      setState((prev) => ({
+        ...prev,
+        visits: [visit, ...prev.visits],
+        auditLog: [
+          makeAudit(prev.currentUser, {
+            entityType: 'visit',
+            entityId: id,
+            action: 'visit.start',
+            summary: `Started verification visit on ${site?.code ?? siteId}`,
+          }),
+          ...prev.auditLog,
+        ].slice(0, 500),
+      }))
       enqueue('visit_upsert', id)
       return id
     },
-    [enqueue, state.sites],
+    [enqueue, state.currentUser.role, state.sites],
   )
 
   const updateChecklistItem = useCallback(
@@ -114,46 +173,80 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       itemId: string,
       patch: Partial<Pick<ChecklistItem, 'status' | 'measuredValue' | 'notes'>>,
     ) => {
-      setState((prev) => ({
-        ...prev,
-        visits: prev.visits.map((v) =>
-          v.id !== visitId
-            ? v
-            : markDirtyVisit({
-                ...v,
-                checklist: v.checklist.map((item) =>
-                  item.id === itemId ? { ...item, ...patch } : item,
-                ),
-              }),
-        ),
-      }))
+      if (!can(state.currentUser.role, 'field.capture')) return
+      setState((prev) => {
+        const visit = prev.visits.find((v) => v.id === visitId)
+        const before = visit?.checklist.find((i) => i.id === itemId)
+        return {
+          ...prev,
+          visits: prev.visits.map((v) =>
+            v.id !== visitId
+              ? v
+              : markDirtyVisit({
+                  ...v,
+                  checklist: v.checklist.map((item) =>
+                    item.id === itemId ? { ...item, ...patch } : item,
+                  ),
+                }),
+          ),
+          auditLog: [
+            makeAudit(prev.currentUser, {
+              entityType: 'checklist',
+              entityId: itemId,
+              action: 'checklist.patch',
+              summary: `Checklist ${before?.label ?? itemId} → ${patch.status ?? before?.status}`,
+              before: before?.status,
+              after: patch.status ?? before?.status,
+            }),
+            ...prev.auditLog,
+          ].slice(0, 500),
+        }
+      })
       enqueue('visit_upsert', visitId)
     },
-    [enqueue],
+    [enqueue, state.currentUser.role],
   )
 
   const upsertCapture = useCallback(
     (visitId: string, asset: Omit<CaptureAsset, 'id'> & { id?: string }) => {
-      setState((prev) => ({
-        ...prev,
-        visits: prev.visits.map((v) => {
-          if (v.id !== visitId) return v
-          const id = asset.id ?? uid('cap')
-          const nextAsset: CaptureAsset = { ...asset, id }
-          const without = v.captures.filter((c) => c.slotId !== asset.slotId)
-          return markDirtyVisit({
-            ...v,
-            captures: [...without, nextAsset],
-          })
-        }),
-      }))
+      if (!can(state.currentUser.role, 'field.capture')) return
+      setState((prev) => {
+        const id = asset.id ?? uid('cap')
+        const nextAsset: CaptureAsset = {
+          ...asset,
+          id,
+          userId: asset.userId ?? prev.currentUser.id,
+        }
+        return {
+          ...prev,
+          visits: prev.visits.map((v) => {
+            if (v.id !== visitId) return v
+            const without = v.captures.filter((c) => c.slotId !== asset.slotId)
+            return markDirtyVisit({
+              ...v,
+              captures: [...without, nextAsset],
+            })
+          }),
+          auditLog: [
+            makeAudit(prev.currentUser, {
+              entityType: 'capture',
+              entityId: id,
+              action: 'capture.upsert',
+              summary: `Captured slot ${asset.slotId}${asset.sha256 ? ` · ${asset.sha256.slice(0, 12)}…` : ''}`,
+              after: asset.bearingDeg != null ? `${asset.bearingDeg}°` : undefined,
+            }),
+            ...prev.auditLog,
+          ].slice(0, 500),
+        }
+      })
       enqueue('visit_upsert', visitId)
     },
-    [enqueue],
+    [enqueue, state.currentUser.role],
   )
 
   const updateMeasurements = useCallback(
     (visitId: string, measurements: VisitMeasurements) => {
+      if (!can(state.currentUser.role, 'field.capture')) return
       setState((prev) => ({
         ...prev,
         visits: prev.visits.map((v) =>
@@ -164,10 +257,19 @@ export function StoreProvider({ children }: { children: ReactNode }) {
                 measurements: { ...v.measurements, ...measurements },
               }),
         ),
+        auditLog: [
+          makeAudit(prev.currentUser, {
+            entityType: 'visit',
+            entityId: visitId,
+            action: 'visit.measurements',
+            summary: `Updated heights tower=${measurements.towerHeightM ?? '—'} antenna=${measurements.antennaHeightM ?? '—'}`,
+          }),
+          ...prev.auditLog,
+        ].slice(0, 500),
       }))
       enqueue('visit_upsert', visitId)
     },
-    [enqueue],
+    [enqueue, state.currentUser.role],
   )
 
   const updateSectorActuals = useCallback(
@@ -182,31 +284,53 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         antennaHeightM?: number
       },
     ) => {
-      setState((prev) => ({
-        ...prev,
-        sites: prev.sites.map((s) =>
-          s.id !== siteId
-            ? s
-            : {
-                ...s,
-                sectors: s.sectors.map((sec) =>
-                  sec.id === sectorId
-                    ? {
-                        ...sec,
-                        ...actuals,
-                        tiltActual: actuals.mechTiltActual ?? actuals.tiltActual ?? sec.tiltActual,
-                      }
-                    : sec,
-                ),
-              },
-        ),
-      }))
+      if (!can(state.currentUser.role, 'field.capture')) return
+      setState((prev) => {
+        const site = prev.sites.find((s) => s.id === siteId)
+        const sector = site?.sectors.find((s) => s.id === sectorId)
+        return {
+          ...prev,
+          sites: prev.sites.map((s) =>
+            s.id !== siteId
+              ? s
+              : {
+                  ...s,
+                  sectors: s.sectors.map((sec) =>
+                    sec.id === sectorId
+                      ? {
+                          ...sec,
+                          ...actuals,
+                          tiltActual: actuals.mechTiltActual ?? actuals.tiltActual ?? sec.tiltActual,
+                        }
+                      : sec,
+                  ),
+                },
+          ),
+          auditLog: [
+            makeAudit(prev.currentUser, {
+              entityType: 'sector',
+              entityId: sectorId,
+              action: 'sector.actuals',
+              summary: `Sector ${sector?.name ?? sectorId} actuals updated`,
+              before:
+                sector != null
+                  ? `az ${sector.azimuthActual ?? '—'} / tilt ${sector.tiltActual ?? '—'}`
+                  : undefined,
+              after: `az ${actuals.azimuthActual ?? sector?.azimuthActual ?? '—'} / tilt ${actuals.mechTiltActual ?? actuals.tiltActual ?? sector?.tiltActual ?? '—'}`,
+            }),
+            ...prev.auditLog,
+          ].slice(0, 500),
+        }
+      })
     },
-    [],
+    [state.currentUser.role],
   )
 
   const completeVisit = useCallback(
     (visitId: string) => {
+      if (!can(state.currentUser.role, 'field.complete_visit')) {
+        return { ok: false, message: 'Your role cannot complete field visits' }
+      }
       let result = { ok: false, message: 'Visit not found' }
       setState((prev) => {
         const visit = prev.visits.find((v) => v.id === visitId)
@@ -281,12 +405,22 @@ export function StoreProvider({ children }: { children: ReactNode }) {
                 }
               : v,
           ),
+          auditLog: [
+            makeAudit(prev.currentUser, {
+              entityType: 'visit',
+              entityId: visitId,
+              action: 'visit.complete',
+              summary: `Visit marked ${status}`,
+              after: status,
+            }),
+            ...prev.auditLog,
+          ].slice(0, 500),
         }
       })
       enqueue('visit_upsert', visitId)
       return result
     },
-    [enqueue],
+    [enqueue, state.currentUser.role],
   )
 
   const queueSync = useCallback(
@@ -305,7 +439,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         const ids = prev.visits
           .filter((v) => v.syncStatus !== 'synced')
           .map((v) => v.id)
-        const actions = prev.actions
+        const actionIds = prev.actions
           .filter((a) => a.syncStatus !== 'synced')
           .map((a) => a.id)
         const queue = [...prev.syncQueue]
@@ -320,7 +454,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             })
           }
         }
-        for (const id of actions) {
+        for (const id of actionIds) {
           if (!queue.some((q) => q.kind === 'action_upsert' && q.entityId === id)) {
             queue.push({
               id: uid('sync'),
@@ -347,39 +481,26 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   )
 
   const flushSyncQueue = useCallback(async () => {
+    const snapshot = stateRef.current
     if (!navigator.onLine) {
       return { flushed: 0, message: 'Offline — sync will retry when connectivity returns' }
     }
-    // Simulated portal publish latency
-    await new Promise((r) => setTimeout(r, 450))
-    let flushed = 0
-    setState((prev) => {
-      flushed = prev.syncQueue.length
-      const visitIds = new Set(
-        prev.syncQueue.filter((q) => q.kind === 'visit_upsert').map((q) => q.entityId),
-      )
-      const actionIds = new Set(
-        prev.syncQueue.filter((q) => q.kind === 'action_upsert').map((q) => q.entityId),
-      )
-      const now = new Date().toISOString()
-      return {
-        ...prev,
-        syncQueue: [],
-        visits: prev.visits.map((v) =>
-          visitIds.has(v.id) ? { ...v, syncStatus: 'synced', syncedAt: now } : v,
-        ),
-        actions: prev.actions.map((a) =>
-          actionIds.has(a.id) ? { ...a, syncStatus: 'synced' } : a,
-        ),
-      }
-    })
-    return {
-      flushed,
-      message:
-        flushed === 0
-          ? 'Nothing pending — portal already up to date'
-          : `Synced ${flushed} item(s) to portal`,
-    }
+    const result = await flushQueueAgainstApi({ ...snapshot, online: true })
+    setState((prev) => ({
+      ...prev,
+      ...result.nextState,
+      auditLog: [
+        makeAudit(prev.currentUser, {
+          entityType: 'sync',
+          entityId: `flush-${Date.now()}`,
+          action: 'sync.flush',
+          summary: result.auditSummary ?? result.message,
+          after: `${result.flushed} ok / ${result.failed} failed`,
+        }),
+        ...prev.auditLog,
+      ].slice(0, 500),
+    }))
+    return { flushed: result.flushed, message: result.message }
   }, [])
 
   const proposeAction = useCallback(
@@ -389,11 +510,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         'id' | 'createdAt' | 'updatedAt' | 'status' | 'syncStatus'
       >,
     ) => {
+      if (!can(state.currentUser.role, 'action.propose')) return ''
       const id = uid('act')
       const now = new Date().toISOString()
       const action: OptimizationAction = {
         ...input,
         id,
+        proposedBy: input.proposedBy || state.currentUser.name,
         status: 'proposed',
         createdAt: now,
         updatedAt: now,
@@ -407,38 +530,68 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             ? { ...s, status: 'optimization' }
             : s,
         ),
+        auditLog: [
+          makeAudit(prev.currentUser, {
+            entityType: 'action',
+            entityId: id,
+            action: 'action.propose',
+            summary: action.title,
+            after: 'proposed',
+          }),
+          ...prev.auditLog,
+        ].slice(0, 500),
       }))
       enqueue('action_upsert', id)
       return id
     },
-    [enqueue],
+    [enqueue, state.currentUser],
   )
 
   const transitionAction = useCallback(
     (actionId: string, status: ActionStatus, extra?: Partial<OptimizationAction>) => {
-      setState((prev) => ({
-        ...prev,
-        actions: prev.actions.map((a) =>
-          a.id !== actionId
-            ? a
-            : {
-                ...a,
-                ...extra,
-                status,
-                updatedAt: new Date().toISOString(),
-                syncStatus: 'pending',
-                completedAt:
-                  status === 'closed' || status === 'verified'
-                    ? new Date().toISOString()
-                    : a.completedAt,
-                approvedBy:
-                  status === 'approved' ? extra?.approvedBy ?? 'Opt Lead' : a.approvedBy,
-              },
-        ),
-      }))
+      if (!canTransition(state.currentUser.role, status)) {
+        return { ok: false, message: `Role ${state.currentUser.role} cannot move actions to ${status}` }
+      }
+      setState((prev) => {
+        const existing = prev.actions.find((a) => a.id === actionId)
+        return {
+          ...prev,
+          actions: prev.actions.map((a) =>
+            a.id !== actionId
+              ? a
+              : {
+                  ...a,
+                  ...extra,
+                  status,
+                  updatedAt: new Date().toISOString(),
+                  syncStatus: 'pending',
+                  completedAt:
+                    status === 'closed' || status === 'verified'
+                      ? new Date().toISOString()
+                      : a.completedAt,
+                  approvedBy:
+                    status === 'approved'
+                      ? extra?.approvedBy ?? prev.currentUser.name
+                      : a.approvedBy,
+                },
+          ),
+          auditLog: [
+            makeAudit(prev.currentUser, {
+              entityType: 'action',
+              entityId: actionId,
+              action: 'action.transition',
+              summary: `${existing?.title ?? actionId} → ${status}`,
+              before: existing?.status,
+              after: status,
+            }),
+            ...prev.auditLog,
+          ].slice(0, 500),
+        }
+      })
       enqueue('action_upsert', actionId)
+      return { ok: true, message: `Moved to ${status.replace('_', ' ')}` }
     },
-    [enqueue],
+    [enqueue, state.currentUser],
   )
 
   const logFieldTiltAction = useCallback(
@@ -463,20 +616,21 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           input.note ??
           `Field-logged ${input.type} change from ${input.valueBefore} to ${input.valueAfter}`,
         priority: 'high',
-        proposedBy: 'Field Tech Rep',
+        proposedBy: state.currentUser.name,
         expectedImpact: 'Coverage / interference adjustment — verify KPIs 72h',
         valueBefore: input.valueBefore,
         valueAfter: input.valueAfter,
       })
     },
-    [proposeAction, state.sites],
+    [proposeAction, state.currentUser.name, state.sites],
   )
 
-  const api = useMemo<StoreApi>(
+  const apiSurface = useMemo<StoreApi>(
     () => ({
       state,
       ready,
       resetDemo,
+      setDemoUser,
       startVisit,
       updateChecklistItem,
       upsertCapture,
@@ -493,6 +647,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       state,
       ready,
       resetDemo,
+      setDemoUser,
       startVisit,
       updateChecklistItem,
       upsertCapture,
@@ -507,5 +662,5 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     ],
   )
 
-  return <StoreContext.Provider value={api}>{children}</StoreContext.Provider>
+  return <StoreContext.Provider value={apiSurface}>{children}</StoreContext.Provider>
 }

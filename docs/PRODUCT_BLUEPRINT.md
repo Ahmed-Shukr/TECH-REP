@@ -182,7 +182,7 @@ See TypeScript types in `src/data/types.ts`.
 | Phase | Scope |
 |-------|--------|
 | **MVP (this repo)** | Field verification UI with checklist + capture slots + camera; optimization actions; portal dossier; PWA offline shell; IndexedDB; mock sync |
-| **Phase 2** | Real API, object storage, auth/RBAC, PDF dossier, compass-assisted panoramas |
+| **Phase 2 (this repo)** | Local mock REST API (IndexedDB portal store), demo auth/RBAC, PDF dossier export, compass-assisted panoramas, media SHA-256, immutable audit log |
 | **Phase 3** | Capacitor apps, resumable uploads, MDM, OSS/KPI hooks, e-sign acceptance |
 | **Phase 4** | Closed-loop SON parameter push, automated post-check |
 
@@ -215,10 +215,10 @@ See TypeScript types in `src/data/types.ts`.
 
 ---
 
-## 11. Out of scope for current MVP code
+## 11. Out of scope / still cloud-bound
 
-- Real cloud API / S3
-- Native store builds
-- SSO
+- Real cloud API / S3 (local mock REST stands in — see `src/api/`)
+- Native store builds / Capacitor
+- Enterprise SSO (demo role switcher only)
 - Live OSS counters
-- Automatic compass gating (UI ready for bearing metadata)
+- Hard block on panorama capture when compass Δ > 15° (warn + audit only)

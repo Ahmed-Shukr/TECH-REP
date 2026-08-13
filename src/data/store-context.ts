@@ -4,6 +4,7 @@ import type {
   AppState,
   CaptureAsset,
   ChecklistItem,
+  DemoUser,
   OptimizationAction,
   VisitMeasurements,
 } from './types'
@@ -12,6 +13,7 @@ export type StoreApi = {
   state: AppState
   ready: boolean
   resetDemo: () => Promise<void>
+  setDemoUser: (user: DemoUser) => void
   startVisit: (siteId: string) => string
   updateChecklistItem: (
     visitId: string,
@@ -44,7 +46,7 @@ export type StoreApi = {
     actionId: string,
     status: ActionStatus,
     extra?: Partial<OptimizationAction>,
-  ) => void
+  ) => { ok: boolean; message: string }
   logFieldTiltAction: (input: {
     siteId: string
     sectorId: string

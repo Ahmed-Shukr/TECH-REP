@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom'
 import { CaptureSlotGrid } from '../components/CaptureSlotGrid'
 import { ProgressBar } from '../components/ProgressBar'
 import { StatusBadge } from '../components/StatusBadge'
+import { can } from '../data/auth'
 import { checklistProgress } from '../data/helpers'
 import { slotFillCount } from '../data/templates'
 import { useStore } from '../data/useStore'
@@ -64,7 +65,9 @@ export function VerificationPage() {
     )
   }
 
-  const locked = visit.status === 'completed' || visit.status === 'blocked'
+  const canCapture = can(state.currentUser.role, 'field.capture')
+  const locked =
+    visit.status === 'completed' || visit.status === 'blocked' || !canCapture
   const sectorId = tiltForm.sectorId || site.sectors[0]?.id || ''
 
   const onComplete = () => {
@@ -271,6 +274,7 @@ export function VerificationPage() {
               slots={visit.slots}
               captures={visit.captures}
               locked={locked}
+              userId={state.currentUser.id}
               onCapture={(asset) => upsertCapture(visit.id, asset)}
             />
           </section>

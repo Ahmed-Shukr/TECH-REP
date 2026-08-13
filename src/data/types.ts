@@ -66,11 +66,20 @@ export interface CaptureAsset {
   lng?: number
   accuracyM?: number
   bearingDeg?: number
+  /** Whether bearing came from device compass or slot default */
+  bearingSource?: 'device' | 'slot_default'
+  /** Absolute degrees off expected panorama bearing */
+  bearingDeltaDeg?: number
   note?: string
   /** Compressed JPEG data URL for MVP offline store */
   dataUrl?: string
   /** Measurement entered with this capture (e.g. height meters) */
   measuredValue?: string
+  /** SHA-256 of compressed media bytes */
+  sha256?: string
+  byteSize?: number
+  deviceId?: string
+  userId?: string
 }
 
 export interface ChecklistItem {
@@ -152,10 +161,44 @@ export interface SyncQueueItem {
   lastError?: string
 }
 
+/** Demo RBAC roles matching portal personas */
+export type DemoRole =
+  | 'field'
+  | 'rf_engineer'
+  | 'opt_lead'
+  | 'region_manager'
+  | 'auditor'
+
+export interface DemoUser {
+  id: string
+  name: string
+  role: DemoRole
+}
+
+export type AuditEntityType = 'visit' | 'capture' | 'checklist' | 'action' | 'sector' | 'sync'
+
+export interface AuditEvent {
+  id: string
+  at: string
+  actorId: string
+  actorName: string
+  role: DemoRole
+  entityType: AuditEntityType
+  entityId: string
+  action: string
+  summary: string
+  before?: string
+  after?: string
+}
+
 export interface AppState {
   sites: Site[]
   visits: Visit[]
   actions: OptimizationAction[]
   syncQueue: SyncQueueItem[]
   online: boolean
+  currentUser: DemoUser
+  auditLog: AuditEvent[]
+  /** Last successful mock API sync cursor ISO timestamp */
+  syncCursor?: string
 }
