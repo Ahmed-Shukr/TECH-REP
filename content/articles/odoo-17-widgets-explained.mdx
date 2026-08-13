@@ -1,0 +1,49 @@
+---
+title: "Odoo 17 Widgets Explained"
+slug: "odoo-17-widgets-explained"
+description: "What an Odoo widget actually is, when to use a built-in widget, and when a field needs its own OWL component."
+date: "2025-02-12"
+category: "Odoo"
+tags: ["Odoo", "OWL", "Frontend"]
+featured: true
+---
+
+A widget in Odoo is not a visual flourish. It is the contract between a field on a model and the way a user is allowed to see or edit that field.
+
+If you treat widgets as CSS, you will fight the framework. If you treat them as a presentation layer over typed data, Odoo becomes predictable.
+
+## The job of a widget
+
+Every field already has a type: `char`, `integer`, `many2one`, `html`, `monetary`. The widget decides:
+
+- how the value is rendered in form, list and kanban views
+- which user gestures are legal
+- how the client writes the value back to the ORM
+
+`widget="badge"` on a selection field is a different product decision from `widget="radio"`. Same data, different operational meaning.
+
+## Built-in widgets first
+
+Before writing a custom widget, check whether Odoo already solved the interaction:
+
+- `many2one` with `widget="selection"` when the relation is small and must be chosen, not searched
+- `widget="statinfo"` for KPI tiles on form headers
+- `widget="handle"` for ordered one2many lines
+- `widget="image"` and `widget="pdf_viewer"` for binary fields
+- `widget="ace"` for technical text that should not be a plain textarea
+
+Custom widgets are justified when the user is doing something the stock widget cannot express: a domain-specific control, a live preview, or a composite edit.
+
+## OWL is the implementation, not the starting point
+
+In Odoo 17, custom field widgets are OWL components registered against a field type. The important design questions are still domain questions:
+
+1. What is the stored value?
+2. What is invalid input?
+3. Does this widget need to write, or only display?
+
+A display-only widget that silently fails to write will look finished in a demo and break in production.
+
+## A practical rule
+
+If a consultant cannot explain the widget in one sentence to the user who will click it, the widget is probably the wrong abstraction. Put the complexity in the model or the workflow, not in the control.

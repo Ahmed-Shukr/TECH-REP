@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" fill="none">
+  <rect width="1200" height="720" fill="#efe6d4"/>
+  <rect x="48" y="48" width="1104" height="624" rx="16" fill="#f6efe2" stroke="#cbbda6"/>
+  <text x="80" y="104" fill="#161310" font-family="ui-sans-serif, system-ui" font-size="22" font-weight="600">RNPO loop</text>
+  <text x="80" y="132" fill="#5c5348" font-family="ui-sans-serif, system-ui" font-size="14">Evidence ’ analysis ’ change ’ verification</text>
+  <rect x="80" y="200" width="230" height="360" rx="12" fill="#f0dcc8"/>
+  <rect x="350" y="200" width="230" height="360" rx="12" fill="#f0dcc8"/>
+  <rect x="620" y="200" width="230" height="360" rx="12" fill="#f0dcc8"/>
+  <rect x="890" y="200" width="214" height="360" rx="12" fill="#b42318"/>
+  <text x="104" y="248" fill="#b42318" font-family="ui-sans-serif, system-ui" font-size="16" font-weight="600">OSS + traces</text>
+  <text x="374" y="248" fill="#b42318" font-family="ui-sans-serif, system-ui" font-size="16" font-weight="600">KPI / RF</text>
+  <text x="644" y="248" fill="#b42318" font-family="ui-sans-serif, system-ui" font-size="16" font-weight="600">Parameter change</text>
+  <text x="914" y="248" fill="#f6efe2" font-family="ui-sans-serif, system-ui" font-size="16" font-weight="600">Verify</text>
+  <text x="104" y="300" fill="#5c5348" font-family="ui-sans-serif, system-ui" font-size="13">TCH drop, RxQual,</text>
+  <text x="104" y="320" fill="#5c5348" font-family="ui-sans-serif, system-ui" font-size="13">RxLev, TA</text>
+  <text x="374" y="300" fill="#5c5348" font-family="ui-sans-serif, system-ui" font-size="13">Cause isolation</text>
+  <text x="644" y="300" fill="#5c5348" font-family="ui-sans-serif, system-ui" font-size="13">One controlled change</text>
+  <text x="914" y="300" fill="#f0dcc8" font-family="ui-sans-serif, system-ui" font-size="13">Same KPI definition</text>
+</svg>

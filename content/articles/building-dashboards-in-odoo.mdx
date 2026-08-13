@@ -1,0 +1,35 @@
+---
+title: "Building Dashboards in Odoo"
+slug: "building-dashboards-in-odoo"
+description: "A dashboard is a product. Define the question, the aggregation and the drill-through before choosing a chart library."
+date: "2025-03-18"
+category: "Odoo"
+tags: ["Odoo", "Dashboards", "Chart.js"]
+featured: true
+---
+
+The weakest Odoo dashboards are the ones that start with a chart library. The strongest ones start with a meeting: what decision is this screen for, and what number would change that decision?
+
+## Three layers
+
+1. **Question** — occupancy this morning, revenue by category this month, sittings still unmarked.
+2. **Aggregation** — a PostgreSQL-backed read that can answer the question without loading every record into the browser.
+3. **Presentation** — OWL + Chart.js, KPI cards, and a path back to the source record.
+
+If layer 2 is a client-side `searchRead` of thousands of rows, the dashboard will rot as soon as the database is real.
+
+## KPI cards before charts
+
+A manager can use a number. A chart is optional. Put the definition of the KPI next to the number: period, filter, inclusion rules. Two teams comparing "revenue" with different cancelled-state rules are not looking at the same product.
+
+## Drill-through is not optional
+
+A dashboard that cannot open the underlying records is a poster. In Odoo, the correct finish is an action that opens a list or form with the same domain the chart used.
+
+## Chart.js is enough
+
+For operational ERP dashboards, Chart.js covers time series, mix and comparison. The constraint is not the library. The constraint is whether the aggregation is honest and fast.
+
+## What I refuse to do
+
+I do not publish percentage-complete bars for skills, and I do not publish vanity dashboards for clients. If a widget does not change an operational decision, it does not belong on the home screen.

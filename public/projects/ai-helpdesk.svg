@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" fill="none">
+  <rect width="1200" height="720" fill="#efe6d4"/>
+  <rect x="48" y="48" width="1104" height="624" rx="16" fill="#f6efe2" stroke="#cbbda6"/>
+  <text x="80" y="104" fill="#161310" font-family="ui-sans-serif, system-ui" font-size="22" font-weight="600">AI Helpdesk</text>
+  <text x="80" y="132" fill="#5c5348" font-family="ui-sans-serif, system-ui" font-size="14">Classify · retrieve · suggest · human accepts</text>
+  <rect x="80" y="176" width="240" height="420" rx="12" fill="#efe6d4" stroke="#cbbda6"/>
+  <rect x="360" y="176" width="400" height="420" rx="12" fill="#efe6d4" stroke="#cbbda6"/>
+  <rect x="800" y="176" width="304" height="420" rx="12" fill="#f0dcc8"/>
+  <text x="104" y="216" fill="#161310" font-family="ui-sans-serif, system-ui" font-size="14" font-weight="600">Ticket</text>
+  <text x="384" y="216" fill="#161310" font-family="ui-sans-serif, system-ui" font-size="14" font-weight="600">Suggested reply</text>
+  <text x="824" y="216" fill="#b42318" font-family="ui-sans-serif, system-ui" font-size="14" font-weight="600">Agent control</text>
+  <rect x="104" y="240" width="192" height="16" rx="4" fill="#cbbda6"/>
+  <rect x="104" y="268" width="160" height="16" rx="4" fill="#cbbda6"/>
+  <rect x="384" y="240" width="352" height="200" rx="8" fill="#f6efe2" stroke="#cbbda6"/>
+  <rect x="824" y="248" width="256" height="44" rx="8" fill="#b42318"/>
+  <rect x="824" y="308" width="256" height="44" rx="8" fill="#f6efe2" stroke="#b42318"/>
+  <rect x="824" y="368" width="256" height="44" rx="8" fill="#f6efe2" stroke="#cbbda6"/>
+  <text x="900" y="276" fill="#f6efe2" font-family="ui-sans-serif, system-ui" font-size="13">Accept</text>
+  <text x="910" y="336" fill="#b42318" font-family="ui-sans-serif, system-ui" font-size="13">Edit</text>
+  <text x="900" y="396" fill="#5c5348" font-family="ui-sans-serif, system-ui" font-size="13">Discard</text>
+</svg>

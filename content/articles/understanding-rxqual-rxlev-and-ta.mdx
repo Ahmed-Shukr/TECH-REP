@@ -1,0 +1,35 @@
+---
+title: "Understanding RxQual, RxLev and TA"
+slug: "understanding-rxqual-rxlev-and-ta"
+description: "Three 2G measurements that people collapse into 'coverage'. They answer different questions and should be read together."
+date: "2025-01-28"
+category: "Telecom"
+tags: ["2G", "RF", "RNPO"]
+---
+
+RxLev, RxQual and Timing Advance are often pasted into the same sentence as if they were one metric. They are not.
+
+## RxLev
+
+RxLev is received signal level. It tells you how strong the serving cell is at the mobile. Weak RxLev can mean distance, clutter, indoor loss or a downtilt / power issue. Strong RxLev does not mean the call is clean.
+
+## RxQual
+
+RxQual is a quality class derived from bit-error performance. It is closer to "can this radio link carry speech reliably?" than to "can I see the site on a scanner?"
+
+Good RxLev and bad RxQual is a classic interference or quality story. Treating it as a coverage hole will produce the wrong physical change.
+
+## Timing Advance
+
+TA is a distance proxy. It tells you whether the mobile is near the site or toward the edge of the cell. High TA with weak RxLev supports an overshoot or coverage-edge hypothesis. High TA with decent RxLev can still be a neighbor or HO problem.
+
+Low TA and poor quality points back toward the serving area: interference, hardware, or a very local obstruction.
+
+## Read them as a triple
+
+- Weak RxLev, poor RxQual, high TA — first look at edge, overshoot or coverage.
+- Strong RxLev, poor RxQual, low TA — interference or quality, not a hole.
+- Weak RxLev, good RxQual, high TA — marginal level that is still usable; watch handover.
+- Strong RxLev, good RxQual, low TA — RF is not the first place to look.
+
+Drive-test plots that colour only RxLev hide the interesting cells. The useful picture is the combination, plus the KPI that made you open the trace in the first place.

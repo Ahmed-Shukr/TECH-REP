@@ -1,0 +1,42 @@
+---
+title: "Deploying Odoo with Docker"
+slug: "deploying-odoo-with-docker"
+description: "A production Odoo stack is Odoo, PostgreSQL, filestore, backups and a restart story. Docker is only the packaging."
+date: "2025-02-26"
+category: "DevOps"
+tags: ["Odoo", "Docker", "Linux"]
+---
+
+Docker makes Odoo repeatable. It does not make Odoo production-ready by itself.
+
+A deployable stack has five parts:
+
+1. The Odoo process and its addons
+2. PostgreSQL
+3. Persistent filestore
+4. Reverse proxy and TLS
+5. Backup and restore that you have actually tested
+
+## What should be in the image
+
+Put code and system dependencies in the image. Put data outside it.
+
+- Custom addons mounted or copied at build time, pinned to a revision
+- `odoo.conf` with `db_name`, `addons_path`, workers and proxy mode
+- No database files in the container filesystem
+
+If you lose the container and you also lose filestore or Postgres, you did not have a deployment. You had a demo.
+
+## Workers and memory
+
+`--workers` is not a decoration. Size workers against available RAM and expected concurrent users. A single-worker container that was fine in development will stall the first time several dashboards and imports run together.
+
+## Multi-database habits
+
+Odoo can host several databases. That is useful and easy to get wrong. `dbfilter` exists so a hostname maps to the intended database. Do not leave a server listing every database to every visitor.
+
+## The restore test
+
+The only backup that counts is the one you have restored onto a scratch environment. Dump Postgres, copy filestore, bring the stack up, log in, open a recent record. Until that works, do not call the system deployed.
+
+I keep an installation script and Docker-based practice in public repositories because this part of the job is as much engineering as the module code.

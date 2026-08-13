@@ -1,0 +1,37 @@
+---
+title: "Understanding Odoo OWL Components"
+slug: "understanding-odoo-owl-components"
+description: "OWL is Odoo's UI framework. Here is how to think about components, state and services without treating it like a generic React tutorial."
+date: "2025-03-04"
+category: "Odoo"
+tags: ["Odoo", "OWL", "JavaScript"]
+featured: true
+---
+
+OWL looks familiar if you have written React. That familiarity is useful and also dangerous. OWL components live inside Odoo's web client: they talk to the ORM, the action service and the view system. They are not a separate SPA that happens to sit next to Odoo.
+
+## Component, template, props
+
+An OWL component is a JavaScript class plus an XML template. Props are the explicit input. State is the local, mutable data the component owns. Anything that belongs to a record should stay on the record, not be copied into component state unless you are editing it.
+
+The usual failure mode is duplicating ORM data into `this.state` and then wondering why the form and the dashboard disagree.
+
+## Services instead of ad-hoc fetch
+
+Odoo already has services for notifications, dialogs, RPC and actions. A dashboard that bypasses them to `fetch` a random controller will work in development and become hard to reason about once access rights, company context and session expiry appear.
+
+Use the RPC service. Keep company and user context implicit. Treat permissions as part of the interface.
+
+## When OWL is the right tool
+
+Use OWL when the interaction is richer than a standard view:
+
+- KPI dashboards with filters
+- custom field widgets
+- client-side composition of several models into one working surface
+
+Do not use OWL to rebuild a form that standard views already express. The standard view is cheaper to maintain and already has access control, onchange and chatter.
+
+## Architecture habit
+
+Draw the data contract first: which model, which fields, which aggregated read. Then write the component. OWL is a rendering layer. The product is still the business question the screen answers.
